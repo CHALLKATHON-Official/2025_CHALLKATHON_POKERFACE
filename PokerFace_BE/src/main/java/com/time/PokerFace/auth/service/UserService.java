@@ -2,9 +2,11 @@ package com.time.PokerFace.auth.service;
 
 import com.time.PokerFace.auth.dto.LoginRequestDto;
 import com.time.PokerFace.auth.dto.SignupRequestDto;
+import com.time.PokerFace.auth.dto.UserInfoResponseDto;
 import com.time.PokerFace.auth.entity.User;
 import com.time.PokerFace.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -42,4 +44,41 @@ public class UserService {
 
         return user;
     }
+    public UserInfoResponseDto getMyInfo(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("유저 없음"));
+        return new UserInfoResponseDto(user);
+    }
+
+    public void updatePassword(String username, PasswordChangeRequest dto) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("유저 없음"));
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+        user.encodePassword(passwordEncoder.encode(dto.getNewPassword()));
+        userRepository.save(user);
+    }
+
+    public void updateEmail(String username, EmailChangeRequest dto) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("유저 없음"));
+        user.updateEmail(dto.getNewEmail());
+        userRepository.save(user);
+    }
+
+    public void updateProfile(String username, ProfileUpdateRequest dto) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("유저 없음"));
+        user.updateUsername(dto.getNewUsername());
+        user.updateProfileImage(dto.getProfileImageUrl());
+        userRepository.save(user);
+    }
+
+    public void deleteUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("유저 없음"));
+        userRepository.delete(user);
+    }
+
 }
