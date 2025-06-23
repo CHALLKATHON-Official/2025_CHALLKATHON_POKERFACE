@@ -1,8 +1,6 @@
 package com.time.PokerFace.auth.service;
 
-import com.time.PokerFace.auth.dto.LoginRequestDto;
-import com.time.PokerFace.auth.dto.SignupRequestDto;
-import com.time.PokerFace.auth.dto.UserInfoResponseDto;
+import com.time.PokerFace.auth.dto.*;
 import com.time.PokerFace.auth.entity.User;
 import com.time.PokerFace.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +14,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void signup(SignupRequestDto dto) {
+    public void signup(SignupRequest dto) {
         if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 사용자명입니다.");
         }
@@ -34,7 +32,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public User login(LoginRequestDto dto) {
+    public User login(LoginRequest dto) {
         User user = userRepository.findByUsername(dto.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
@@ -44,10 +42,10 @@ public class UserService {
 
         return user;
     }
-    public UserInfoResponseDto getMyInfo(String username) {
+    public UserInfoResponse getMyInfo(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("유저 없음"));
-        return new UserInfoResponseDto(user);
+        return new UserInfoResponse(user);
     }
 
     public void updatePassword(String username, PasswordChangeRequest dto) {

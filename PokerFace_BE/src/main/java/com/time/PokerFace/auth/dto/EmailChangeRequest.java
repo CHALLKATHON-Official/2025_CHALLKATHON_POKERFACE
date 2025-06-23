@@ -3,6 +3,6 @@ package com.time.PokerFace.auth.dto;
 import lombok.Getter;
 
 @Getter
-public class EmailChangeRequestDto {
+public class EmailChangeRequest {
     private String newEmail;
 }

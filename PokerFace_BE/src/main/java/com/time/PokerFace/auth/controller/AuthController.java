@@ -1,7 +1,7 @@
 package com.time.PokerFace.auth.controller;
 
-import com.time.PokerFace.auth.dto.LoginRequestDto;
-import com.time.PokerFace.auth.dto.SignupRequestDto;
+import com.time.PokerFace.auth.dto.LoginRequest;
+import com.time.PokerFace.auth.dto.SignupRequest;
 import com.time.PokerFace.auth.entity.User;
 import com.time.PokerFace.auth.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +18,13 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequestDto dto) {
+    public ResponseEntity<?> signup(@RequestBody SignupRequest dto) {
         userService.signup(dto);
         return ResponseEntity.ok("회원가입 성공");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto dto) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest dto) {
         User user = userService.login(dto);
         return ResponseEntity.ok("로그인 성공: " + user.getUsername());
     }
