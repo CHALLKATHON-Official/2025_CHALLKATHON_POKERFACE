@@ -33,4 +33,16 @@ public class User {
     public void encodePassword(String encodedPassword) {
         this.password = encodedPassword;
     }
+
+    public void updateEmail(String newEmail) {
+        this.email = newEmail;
+    }
+
+    public void updateUsername(String newUsername) {
+        this.username = newUsername;
+    }
+
+    public void updateProfileImage(String newImage) {
+        this.profileImageUrl = newImage;
+    }
 }
