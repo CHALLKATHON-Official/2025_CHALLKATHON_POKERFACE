@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class Followservice {
+public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
 
