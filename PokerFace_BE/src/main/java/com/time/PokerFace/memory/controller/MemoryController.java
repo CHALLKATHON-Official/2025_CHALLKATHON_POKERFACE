@@ -6,6 +6,7 @@ import com.time.PokerFace.memory.dto.MemoryListResponse;
 import com.time.PokerFace.memory.dto.MemoryDetailResponse;
 import com.time.PokerFace.memory.dto.MemoryUpdateRequest;
 import com.time.PokerFace.memory.dto.MemoryFilterRequest;
+import com.time.PokerFace.memory.dto.MemoryRecommendRequest;
 import com.time.PokerFace.memory.service.MemoryService;
 import com.time.PokerFace.comment.dto.CommentRequest;
 import com.time.PokerFace.comment.dto.CommentResponse;
@@ -34,6 +35,12 @@ public class MemoryController {
             userId = Long.parseLong(username); // 실제 구현에 맞게 수정 필요
         }
         MemoryListResponse response = memoryService.filterMemories(request, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/recommend")
+    public ResponseEntity<MemoryListResponse> getRecommendedMemories(@ModelAttribute MemoryRecommendRequest request) {
+        MemoryListResponse response = memoryService.getRecommendedMemories(request);
         return ResponseEntity.ok(response);
     }
 

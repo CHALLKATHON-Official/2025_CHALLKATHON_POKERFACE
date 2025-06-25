@@ -7,6 +7,7 @@ import com.time.PokerFace.memory.dto.MemoryListResponse;
 import com.time.PokerFace.memory.dto.MemoryDetailResponse;
 import com.time.PokerFace.memory.dto.MemoryUpdateRequest;
 import com.time.PokerFace.memory.dto.MemoryFilterRequest;
+import com.time.PokerFace.memory.dto.MemoryRecommendRequest;
 import com.time.PokerFace.memory.entity.Emotion;
 import com.time.PokerFace.memory.entity.Memory;
 import com.time.PokerFace.memory.repository.MemoryRepository;
@@ -29,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Collections;
+import java.util.Random;
 
 @Service
 public class MemoryService {
@@ -252,6 +254,60 @@ public class MemoryService {
         response.setTotalElements(memoryPage.getTotalElements());
         response.setPage(request.getPage());
         response.setSize(request.getSize());
+        return response;
+    }
+
+    public MemoryListResponse getRecommendedMemories(MemoryRecommendRequest request) {
+        if (request.getEmotion() == null || request.getEmotion().isEmpty()) {
+            throw new RuntimeException("Emotion is required");
+        }
+        
+        Emotion emotion = Emotion.valueOf(request.getEmotion().toUpperCase());
+        Pageable pageable = PageRequest.of(0, request.getSize());
+        List<Memory> memories;
+        
+        switch (request.getType().toLowerCase()) {
+            case "popular":
+                // 인기 썰 (공감수 높은 순) - 현재는 최신순으로 대체 (공감수 정렬은 추후)
+                memories = memoryRepository.findByEmotionOrderByCreatedAtDesc(emotion, pageable);
+                break;
+            case "recent":
+                // 최신 썰
+                memories = memoryRepository.findByEmotionOrderByCreatedAtDesc(emotion, pageable);
+                break;
+            case "random":
+                // 랜덤 썰
+                List<Memory> allMemories = memoryRepository.findByEmotion(emotion);
+                if (allMemories.size() <= request.getSize()) {
+                    memories = allMemories;
+                } else {
+                    Collections.shuffle(allMemories);
+                    memories = allMemories.subList(0, request.getSize());
+                }
+                break;
+            default:
+                throw new RuntimeException("Invalid recommendation type");
+        }
+        
+        List<MemoryListItem> items = new ArrayList<>();
+        for (Memory m : memories) {
+            MemoryListItem item = new MemoryListItem();
+            item.setId(m.getId());
+            item.setContent(m.getContent());
+            item.setEmotion(m.getEmotion() != null ? m.getEmotion().name() : null);
+            item.setImageUrl(m.getImageUrl());
+            item.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
+            item.setUserId(m.getUserId());
+            item.setLikes(getLikeCount(m.getId()));
+            items.add(item);
+        }
+        
+        MemoryListResponse response = new MemoryListResponse();
+        response.setMemories(items);
+        response.setTotalPages(1);
+        response.setTotalElements(items.size());
+        response.setPage(0);
+        response.setSize(items.size());
         return response;
     }
 } 
