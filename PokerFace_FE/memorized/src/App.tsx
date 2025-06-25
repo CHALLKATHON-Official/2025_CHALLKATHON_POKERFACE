@@ -1,35 +1,25 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom'
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Feed from './pages/Feed'
 import Write from './pages/Write'
 import Search from './pages/Search'
 import MyPage from './pages/MyPage'
-import MyRoom from './pages/MyRoom'
-import Shop from './pages/Shop'
-import Library from './pages/Library'
+import './App.css'
 
-function Navbar() {
+function MenuBar() {
   const location = useLocation()
+  const navigate = useNavigate()
   return (
-    <nav className="navbar">
-      <div className="navbar-inner">
-        <Link to="/" className="navbar-logo">Memorized</Link>
-        <div className="navbar-actions">
-          {location.pathname === '/login' ? (
-            <Link to="/signup" className="navbar-btn">회원가입</Link>
-          ) : location.pathname === '/signup' ? (
-            <Link to="/login" className="navbar-btn">로그인</Link>
-          ) : (
-            <>
-              <Link to="/login" className="navbar-btn">로그인</Link>
-              <Link to="/signup" className="navbar-btn">회원가입</Link>
-            </>
-          )}
+    <nav className="menubar">
+      <div className="menubar-inner">
+        <Link to="/" className="menubar-logo">Memorized</Link>
+        <div className="menubar-actions">
+          <button className={location.pathname === '/' ? 'menubar-btn active' : 'menubar-btn'} onClick={() => navigate('/')}>홈</button>
+          <button className={location.pathname === '/search' ? 'menubar-btn active' : 'menubar-btn'} onClick={() => navigate('/search')}>검색</button>
+          <button className={location.pathname === '/write' ? 'menubar-btn active' : 'menubar-btn'} onClick={() => navigate('/write')}>글쓰기</button>
+          <button className={location.pathname === '/notifications' ? 'menubar-btn active' : 'menubar-btn'}>알림</button>
+          <button className={location.pathname === '/mypage' ? 'menubar-btn active' : 'menubar-btn'} onClick={() => navigate('/mypage')}>프로필</button>
         </div>
       </div>
     </nav>
@@ -37,23 +27,17 @@ function Navbar() {
 }
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <Router>
-      <Navbar />
+      <MenuBar />
       <div className="main-content">
         <Routes>
           <Route path="/" element={<Feed />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/feed" element={<Feed />} />
           <Route path="/write" element={<Write />} />
           <Route path="/search" element={<Search />} />
           <Route path="/mypage" element={<MyPage />} />
-          <Route path="/myroom" element={<MyRoom />} />
-          <Route path="/shop" element={<Shop />} />
-          <Route path="/library" element={<Library />} />
         </Routes>
       </div>
     </Router>
