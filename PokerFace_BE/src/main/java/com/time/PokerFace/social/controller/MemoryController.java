@@ -102,4 +102,32 @@ public class MemoryController {
         memoryService.deleteMemory(id, userId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/like")
+    public ResponseEntity<Void> addLike(@PathVariable Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            String username = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+            userId = Long.parseLong(username); // 실제 구현에 맞게 수정 필요
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+        memoryService.addLike(id, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}/like")
+    public ResponseEntity<Void> removeLike(@PathVariable Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            String username = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+            userId = Long.parseLong(username); // 실제 구현에 맞게 수정 필요
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+        memoryService.removeLike(id, userId);
+        return ResponseEntity.noContent().build();
+    }
 } 
