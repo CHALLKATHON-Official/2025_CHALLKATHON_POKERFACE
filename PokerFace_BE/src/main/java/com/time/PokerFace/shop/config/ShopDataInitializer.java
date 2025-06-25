@@ -27,7 +27,7 @@ public class ShopDataInitializer implements CommandLineRunner {
         decoration1.setDescription("아름다운 꽃다발로 방을 꾸며보세요");
         decoration1.setPrice(50);
         decoration1.setImageUrl("https://via.placeholder.com/100x100?text=Flower");
-        decoration1.setCategory(Item.ItemCategory.DECORATION);
+        decoration1.setType(Item.ItemType.DECORATION);
         itemRepository.save(decoration1);
 
         Item decoration2 = new Item();
@@ -35,7 +35,7 @@ public class ShopDataInitializer implements CommandLineRunner {
         decoration2.setDescription("귀여운 테디베어 인형");
         decoration2.setPrice(30);
         decoration2.setImageUrl("https://via.placeholder.com/100x100?text=Teddy");
-        decoration2.setCategory(Item.ItemCategory.DECORATION);
+        decoration2.setType(Item.ItemType.DECORATION);
         itemRepository.save(decoration2);
 
         // 배경
@@ -44,7 +44,7 @@ public class ShopDataInitializer implements CommandLineRunner {
         background1.setDescription("평화로운 바다 풍경");
         background1.setPrice(100);
         background1.setImageUrl("https://via.placeholder.com/200x100?text=Ocean");
-        background1.setCategory(Item.ItemCategory.BACKGROUND);
+        background1.setType(Item.ItemType.BACKGROUND);
         itemRepository.save(background1);
 
         Item background2 = new Item();
@@ -52,7 +52,7 @@ public class ShopDataInitializer implements CommandLineRunner {
         background2.setDescription("신선한 숲 풍경");
         background2.setPrice(80);
         background2.setImageUrl("https://via.placeholder.com/200x100?text=Forest");
-        background2.setCategory(Item.ItemCategory.BACKGROUND);
+        background2.setType(Item.ItemType.BACKGROUND);
         itemRepository.save(background2);
 
         // 프레임
@@ -61,7 +61,7 @@ public class ShopDataInitializer implements CommandLineRunner {
         frame1.setDescription("고급스러운 골드 프레임");
         frame1.setPrice(150);
         frame1.setImageUrl("https://via.placeholder.com/100x100?text=GoldFrame");
-        frame1.setCategory(Item.ItemCategory.FRAME);
+        frame1.setType(Item.ItemType.FURNITURE);
         itemRepository.save(frame1);
 
         Item frame2 = new Item();
@@ -69,7 +69,7 @@ public class ShopDataInitializer implements CommandLineRunner {
         frame2.setDescription("자연스러운 나무 프레임");
         frame2.setPrice(120);
         frame2.setImageUrl("https://via.placeholder.com/100x100?text=WoodFrame");
-        frame2.setCategory(Item.ItemCategory.FRAME);
+        frame2.setType(Item.ItemType.FURNITURE);
         itemRepository.save(frame2);
 
         // 효과
@@ -78,7 +78,7 @@ public class ShopDataInitializer implements CommandLineRunner {
         effect1.setDescription("반짝이는 특수 효과");
         effect1.setPrice(200);
         effect1.setImageUrl("https://via.placeholder.com/100x100?text=Sparkle");
-        effect1.setCategory(Item.ItemCategory.EFFECT);
+        effect1.setType(Item.ItemType.DECORATION);
         itemRepository.save(effect1);
 
         // 특별 아이템
@@ -87,7 +87,7 @@ public class ShopDataInitializer implements CommandLineRunner {
         special1.setDescription("매우 희귀한 특별 테마");
         special1.setPrice(500);
         special1.setImageUrl("https://via.placeholder.com/100x100?text=Rare");
-        special1.setCategory(Item.ItemCategory.SPECIAL);
+        special1.setType(Item.ItemType.DECORATION);
         itemRepository.save(special1);
     }
 } 

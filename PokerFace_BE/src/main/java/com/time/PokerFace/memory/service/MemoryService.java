@@ -300,11 +300,11 @@ public class MemoryService {
         switch (request.getType().toLowerCase()) {
             case "popular":
                 // 인기 썰 (공감수 높은 순) - 현재는 최신순으로 대체 (공감수 정렬은 추후)
-                memories = memoryRepository.findByEmotionOrderByCreatedAtDesc(emotion, pageable);
+                memories = memoryRepository.findByEmotionOrderByCreatedAtDesc(emotion, pageable).getContent();
                 break;
             case "recent":
                 // 최신 썰
-                memories = memoryRepository.findByEmotionOrderByCreatedAtDesc(emotion, pageable);
+                memories = memoryRepository.findByEmotionOrderByCreatedAtDesc(emotion, pageable).getContent();
                 break;
             case "random":
                 // 랜덤 썰

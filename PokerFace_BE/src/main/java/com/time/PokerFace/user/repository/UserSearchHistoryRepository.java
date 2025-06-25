@@ -11,6 +11,6 @@ public interface UserSearchHistoryRepository extends JpaRepository<UserSearchHis
     List<UserSearchHistory> findByUserIdOrderByCreatedAtDesc(Long userId);
     List<UserSearchHistory> findTop10ByUserIdOrderByCreatedAtDesc(Long userId);
     void deleteByIdAndUserId(Long id, Long userId);
-    List<UserSearchHistory> findTop10ByKeywordStartingWithOrderByCreatedAtDesc(String prefix);
+    List<UserSearchHistory> findTop10BySearchKeywordStartingWithOrderBySearchedAtDesc(String prefix);
     List<UserSearchHistory> findTop10ByOrderByKeywordAsc();
 } 

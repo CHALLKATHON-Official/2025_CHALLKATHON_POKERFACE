@@ -40,7 +40,7 @@ public class UserService {
         if (keyword == null || keyword.trim().isEmpty()) return;
         UserSearchHistory history = new UserSearchHistory();
         history.setUserId(userId);
-        history.setKeyword(keyword);
+        history.setSearchKeyword(keyword);
         userSearchHistoryRepository.save(history);
     }
 
@@ -51,8 +51,8 @@ public class UserService {
         for (UserSearchHistory h : historyList) {
             UserSearchHistoryResponse dto = new UserSearchHistoryResponse();
             dto.setId(h.getId());
-            dto.setKeyword(h.getKeyword());
-            dto.setCreatedAt(h.getCreatedAt() != null ? h.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+            dto.setKeyword(h.getSearchKeyword());
+            dto.setCreatedAt(h.getSearchedAt() != null ? h.getSearchedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
             responses.add(dto);
         }
         return responses;
@@ -69,15 +69,15 @@ public class UserService {
         // 내 히스토리에서 prefix로 시작하는 것
         List<UserSearchHistory> myHistory = userSearchHistoryRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
         for (UserSearchHistory h : myHistory) {
-            if (prefix == null || h.getKeyword().toLowerCase().startsWith(prefix.toLowerCase())) {
-                result.add(h.getKeyword());
+            if (prefix == null || h.getSearchKeyword().toLowerCase().startsWith(prefix.toLowerCase())) {
+                result.add(h.getSearchKeyword());
             }
         }
         // 전체 인기 검색어에서 prefix로 시작하는 것
-        List<UserSearchHistory> popular = userSearchHistoryRepository.findTop10ByKeywordStartingWithOrderByCreatedAtDesc(prefix == null ? "" : prefix);
+        List<UserSearchHistory> popular = userSearchHistoryRepository.findTop10BySearchKeywordStartingWithOrderBySearchedAtDesc(prefix == null ? "" : prefix);
         for (UserSearchHistory h : popular) {
-            if (!result.contains(h.getKeyword())) {
-                result.add(h.getKeyword());
+            if (!result.contains(h.getSearchKeyword())) {
+                result.add(h.getSearchKeyword());
             }
         }
         UserSearchSuggestResponse response = new UserSearchSuggestResponse();
@@ -89,9 +89,9 @@ public class UserService {
         UserSearchResponse dto = new UserSearchResponse();
         dto.setId(user.getId());
         dto.setUsername(user.getUsername());
-        dto.setNickname(user.getNickname());
+        dto.setNickname(user.getUsername());
         dto.setEmail(user.getEmail());
-        dto.setProfileImage(user.getProfileImage());
+        dto.setProfileImage(user.getProfileImageUrl());
         return dto;
     }
 } 

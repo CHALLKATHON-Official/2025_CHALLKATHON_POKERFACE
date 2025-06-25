@@ -7,6 +7,7 @@ public class ItemResponse {
     private int price;
     private String imageUrl;
     private String category;
+    private String type;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -21,4 +22,6 @@ public class ItemResponse {
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+    public void setType(String type) { this.type = type; }
+    public String getType() { return type; }
 } 

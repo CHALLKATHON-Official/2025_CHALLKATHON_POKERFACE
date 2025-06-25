@@ -45,9 +45,9 @@ public class ShopService {
         }
         Item item = itemOpt.get();
         
-        if (!item.isActive()) {
-            throw new RuntimeException("Item is not available for purchase");
-        }
+        // if (!item.isActive()) {
+        //     throw new RuntimeException("Item is not available for purchase");
+        // }
 
         // 코인 차감
         coinService.spendCoins(userId, item.getPrice(), "아이템 구매: " + item.getName());
@@ -72,7 +72,7 @@ public class ShopService {
                 itemInfo.setName(item.getName());
                 itemInfo.setDescription(item.getDescription());
                 itemInfo.setImageUrl(item.getImageUrl());
-                itemInfo.setCategory(item.getCategory().name());
+                itemInfo.setType(item.getType().name());
                 itemInfo.setPurchasedAt(userItem.getPurchasedAt() != null ? 
                     userItem.getPurchasedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
                 items.add(itemInfo);
@@ -91,7 +91,7 @@ public class ShopService {
         response.setDescription(item.getDescription());
         response.setPrice(item.getPrice());
         response.setImageUrl(item.getImageUrl());
-        response.setCategory(item.getCategory().name());
+        response.setType(item.getType().name());
         return response;
     }
 } 

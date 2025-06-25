@@ -25,7 +25,7 @@ public class NotificationService {
         notification.setUserId(userId);
         notification.setType(type);
         notification.setTitle(title);
-        notification.setContent(content);
+        notification.setMessage(content);
         notification.setRelatedId(relatedId);
         notificationRepository.save(notification);
     }
@@ -69,7 +69,7 @@ public class NotificationService {
         response.setId(notification.getId());
         response.setType(notification.getType().name());
         response.setTitle(notification.getTitle());
-        response.setContent(notification.getContent());
+        response.setMessage(notification.getMessage());
         response.setRead(notification.isRead());
         response.setRelatedId(notification.getRelatedId());
         response.setCreatedAt(notification.getCreatedAt() != null ? 
