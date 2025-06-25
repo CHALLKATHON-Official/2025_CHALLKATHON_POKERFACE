@@ -169,4 +169,49 @@ public class MemoryController {
         List<CommentResponse> responses = commentService.getComments(id);
         return ResponseEntity.ok(responses);
     }
+
+    @PostMapping("/{id}/bookmark")
+    public ResponseEntity<Void> addBookmark(@PathVariable Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            String username = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+            userId = Long.parseLong(username); // 실제 구현에 맞게 수정 필요
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+        memoryService.addBookmark(id, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{id}/bookmark")
+    public ResponseEntity<Void> removeBookmark(@PathVariable Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            String username = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+            userId = Long.parseLong(username); // 실제 구현에 맞게 수정 필요
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+        memoryService.removeBookmark(id, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/bookmarks")
+    public ResponseEntity<MemoryListResponse> getBookmarkedMemories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            String username = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+            userId = Long.parseLong(username); // 실제 구현에 맞게 수정 필요
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+        MemoryListResponse response = memoryService.getBookmarkedMemories(userId, page, size);
+        return ResponseEntity.ok(response);
+    }
 } 

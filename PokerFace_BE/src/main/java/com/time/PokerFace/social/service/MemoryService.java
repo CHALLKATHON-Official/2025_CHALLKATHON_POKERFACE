@@ -9,8 +9,10 @@ import com.time.PokerFace.social.dto.MemoryUpdateRequest;
 import com.time.PokerFace.social.entity.Emotion;
 import com.time.PokerFace.social.entity.Memory;
 import com.time.PokerFace.social.entity.MemoryLike;
+import com.time.PokerFace.social.entity.MemoryBookmark;
 import com.time.PokerFace.social.repository.MemoryRepository;
 import com.time.PokerFace.social.repository.MemoryLikeRepository;
+import com.time.PokerFace.social.repository.MemoryBookmarkRepository;
 import com.time.PokerFace.social.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,13 +33,15 @@ public class MemoryService {
     private final MemoryRepository memoryRepository;
     private final S3Uploader s3Uploader;
     private final MemoryLikeRepository memoryLikeRepository;
+    private final MemoryBookmarkRepository memoryBookmarkRepository;
     private final CommentService commentService;
 
     @Autowired
-    public MemoryService(MemoryRepository memoryRepository, S3Uploader s3Uploader, MemoryLikeRepository memoryLikeRepository, CommentService commentService) {
+    public MemoryService(MemoryRepository memoryRepository, S3Uploader s3Uploader, MemoryLikeRepository memoryLikeRepository, MemoryBookmarkRepository memoryBookmarkRepository, CommentService commentService) {
         this.memoryRepository = memoryRepository;
         this.s3Uploader = s3Uploader;
         this.memoryLikeRepository = memoryLikeRepository;
+        this.memoryBookmarkRepository = memoryBookmarkRepository;
         this.commentService = commentService;
     }
 
@@ -160,5 +164,48 @@ public class MemoryService {
 
     public int getLikeCount(Long memoryId) {
         return memoryLikeRepository.countByMemoryId(memoryId);
+    }
+
+    public void addBookmark(Long memoryId, Long userId) {
+        if (memoryBookmarkRepository.findByMemoryIdAndUserId(memoryId, userId).isPresent()) {
+            throw new RuntimeException("Already bookmarked");
+        }
+        MemoryBookmark bookmark = new MemoryBookmark();
+        bookmark.setMemoryId(memoryId);
+        bookmark.setUserId(userId);
+        memoryBookmarkRepository.save(bookmark);
+    }
+
+    public void removeBookmark(Long memoryId, Long userId) {
+        memoryBookmarkRepository.deleteByMemoryIdAndUserId(memoryId, userId);
+    }
+
+    public MemoryListResponse getBookmarkedMemories(Long userId, int page, int size) {
+        List<MemoryBookmark> bookmarks = memoryBookmarkRepository.findByUserId(userId);
+        List<Long> memoryIds = new ArrayList<>();
+        for (MemoryBookmark b : bookmarks) {
+            memoryIds.add(b.getMemoryId());
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Memory> memoryPage = memoryRepository.findAllByIdInOrderByCreatedAtDesc(memoryIds, pageable);
+        List<MemoryListItem> items = new ArrayList<>();
+        for (Memory m : memoryPage.getContent()) {
+            MemoryListItem item = new MemoryListItem();
+            item.setId(m.getId());
+            item.setContent(m.getContent());
+            item.setEmotion(m.getEmotion() != null ? m.getEmotion().name() : null);
+            item.setImageUrl(m.getImageUrl());
+            item.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
+            item.setUserId(m.getUserId());
+            item.setLikes(getLikeCount(m.getId()));
+            items.add(item);
+        }
+        MemoryListResponse response = new MemoryListResponse();
+        response.setMemories(items);
+        response.setTotalPages(memoryPage.getTotalPages());
+        response.setTotalElements(memoryPage.getTotalElements());
+        response.setPage(page);
+        response.setSize(size);
+        return response;
     }
 } 
