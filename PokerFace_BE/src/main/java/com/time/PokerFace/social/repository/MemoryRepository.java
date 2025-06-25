@@ -13,4 +13,5 @@ public interface MemoryRepository extends JpaRepository<Memory, Long> {
     Page<Memory> findAllByOrderByCreatedAtDesc(Pageable pageable);
     Page<Memory> findByUserIdInOrderByCreatedAtDesc(List<Long> userIds, Pageable pageable);
     Page<Memory> findAllByIdInOrderByCreatedAtDesc(List<Long> ids, Pageable pageable);
+    Page<Memory> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 } 
