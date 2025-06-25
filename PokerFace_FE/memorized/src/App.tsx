@@ -20,6 +20,7 @@ function MenuBar() {
           <button className={location.pathname === '/write' ? 'menubar-btn active' : 'menubar-btn'} onClick={() => navigate('/write')}>글쓰기</button>
           <button className={location.pathname === '/notifications' ? 'menubar-btn active' : 'menubar-btn'}>알림</button>
           <button className={location.pathname === '/mypage' ? 'menubar-btn active' : 'menubar-btn'} onClick={() => navigate('/mypage')}>프로필</button>
+        <button className="feed-logout">로그아웃</button>
         </div>
       </div>
     </nav>
