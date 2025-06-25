@@ -7,6 +7,8 @@ import com.time.PokerFace.memory.dto.MemoryDetailResponse;
 import com.time.PokerFace.memory.dto.MemoryUpdateRequest;
 import com.time.PokerFace.memory.dto.MemoryFilterRequest;
 import com.time.PokerFace.memory.dto.MemoryRecommendRequest;
+import com.time.PokerFace.memory.dto.RandomMemoryRequest;
+import com.time.PokerFace.memory.dto.RandomMemoryResponse;
 import com.time.PokerFace.memory.service.MemoryService;
 import com.time.PokerFace.comment.dto.CommentRequest;
 import com.time.PokerFace.comment.dto.CommentResponse;
@@ -41,6 +43,12 @@ public class MemoryController {
     @GetMapping("/recommend")
     public ResponseEntity<MemoryListResponse> getRecommendedMemories(@ModelAttribute MemoryRecommendRequest request) {
         MemoryListResponse response = memoryService.getRecommendedMemories(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/random")
+    public ResponseEntity<RandomMemoryResponse> getRandomMemories(@ModelAttribute RandomMemoryRequest request) {
+        RandomMemoryResponse response = memoryService.getRandomMemories(request);
         return ResponseEntity.ok(response);
     }
 

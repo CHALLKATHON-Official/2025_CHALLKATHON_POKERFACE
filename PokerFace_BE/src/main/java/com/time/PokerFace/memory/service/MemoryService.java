@@ -8,6 +8,8 @@ import com.time.PokerFace.memory.dto.MemoryDetailResponse;
 import com.time.PokerFace.memory.dto.MemoryUpdateRequest;
 import com.time.PokerFace.memory.dto.MemoryFilterRequest;
 import com.time.PokerFace.memory.dto.MemoryRecommendRequest;
+import com.time.PokerFace.memory.dto.RandomMemoryRequest;
+import com.time.PokerFace.memory.dto.RandomMemoryResponse;
 import com.time.PokerFace.memory.entity.Emotion;
 import com.time.PokerFace.memory.entity.Memory;
 import com.time.PokerFace.memory.repository.MemoryRepository;
@@ -308,6 +310,54 @@ public class MemoryService {
         response.setTotalElements(items.size());
         response.setPage(0);
         response.setSize(items.size());
+        return response;
+    }
+
+    public RandomMemoryResponse getRandomMemories(RandomMemoryRequest request) {
+        List<Memory> memories;
+        int count = Math.min(request.getCount(), 10); // 최대 10개로 제한
+        
+        if (request.getEmotion() != null && request.getCategory() != null) {
+            // 감정과 카테고리 모두 지정된 경우
+            memories = memoryRepository.findRandomMemoriesByEmotionAndCategory(
+                request.getEmotion().toUpperCase(), 
+                request.getCategory().toUpperCase(), 
+                count
+            );
+        } else if (request.getEmotion() != null) {
+            // 감정만 지정된 경우
+            memories = memoryRepository.findRandomMemoriesByEmotion(
+                request.getEmotion().toUpperCase(), 
+                count
+            );
+        } else if (request.getCategory() != null) {
+            // 카테고리만 지정된 경우
+            memories = memoryRepository.findRandomMemoriesByCategory(
+                request.getCategory().toUpperCase(), 
+                count
+            );
+        } else {
+            // 아무 조건 없이 랜덤
+            memories = memoryRepository.findRandomMemories(count);
+        }
+        
+        List<RandomMemoryResponse.RandomMemoryItem> items = new ArrayList<>();
+        for (Memory memory : memories) {
+            RandomMemoryResponse.RandomMemoryItem item = new RandomMemoryResponse.RandomMemoryItem();
+            item.setId(memory.getId());
+            item.setContent(memory.getContent());
+            item.setEmotion(memory.getEmotion() != null ? memory.getEmotion().name() : null);
+            item.setImageUrl(memory.getImageUrl());
+            item.setUserId(memory.getUserId());
+            item.setCreatedAt(memory.getCreatedAt() != null ? 
+                memory.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null);
+            item.setLikeCount(getLikeCount(memory.getId()));
+            items.add(item);
+        }
+        
+        RandomMemoryResponse response = new RandomMemoryResponse();
+        response.setMemories(items);
+        response.setTotalCount(items.size());
         return response;
     }
 } 

@@ -1,14 +1,33 @@
 package com.time.PokerFace.memory.repository; 
 
+import com.time.PokerFace.memory.entity.Memory;
 import com.time.PokerFace.memory.entity.Emotion;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import java.util.List;
 
-public interface MemoryRepository {
+@Repository
+public interface MemoryRepository extends JpaRepository<Memory, Long> {
     Page<Memory> findByEmotionOrderByCreatedAtDesc(Emotion emotion, Pageable pageable);
     Page<Memory> findByEmotionAndUserIdOrderByCreatedAtDesc(Emotion emotion, Long userId, Pageable pageable);
     List<Memory> findByEmotionOrderByCreatedAtDesc(Emotion emotion, Pageable pageable);
     List<Memory> findByEmotionOrderByLikesDesc(Emotion emotion, Pageable pageable);
     List<Memory> findByEmotion(Emotion emotion);
+    
+    // 랜덤 조회 메서드들
+    @Query(value = "SELECT * FROM memories ORDER BY RAND() LIMIT :count", nativeQuery = true)
+    List<Memory> findRandomMemories(@Param("count") int count);
+    
+    @Query(value = "SELECT * FROM memories WHERE emotion = :emotion ORDER BY RAND() LIMIT :count", nativeQuery = true)
+    List<Memory> findRandomMemoriesByEmotion(@Param("emotion") String emotion, @Param("count") int count);
+    
+    @Query(value = "SELECT * FROM memories WHERE category = :category ORDER BY RAND() LIMIT :count", nativeQuery = true)
+    List<Memory> findRandomMemoriesByCategory(@Param("category") String category, @Param("count") int count);
+    
+    @Query(value = "SELECT * FROM memories WHERE emotion = :emotion AND category = :category ORDER BY RAND() LIMIT :count", nativeQuery = true)
+    List<Memory> findRandomMemoriesByEmotionAndCategory(@Param("emotion") String emotion, @Param("category") String category, @Param("count") int count);
 } 
