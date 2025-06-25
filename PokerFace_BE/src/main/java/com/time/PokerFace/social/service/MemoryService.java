@@ -2,15 +2,22 @@ package com.time.PokerFace.social.service;
 
 import com.time.PokerFace.social.dto.MemoryUploadRequest;
 import com.time.PokerFace.social.dto.MemoryResponse;
+import com.time.PokerFace.social.dto.MemoryListItem;
+import com.time.PokerFace.social.dto.MemoryListResponse;
 import com.time.PokerFace.social.entity.Emotion;
 import com.time.PokerFace.social.entity.Memory;
 import com.time.PokerFace.social.repository.MemoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class MemoryService {
@@ -46,6 +53,35 @@ public class MemoryService {
         response.setEmotion(saved.getEmotion().name());
         response.setImageUrl(saved.getImageUrl());
         response.setCreatedAt(saved.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        return response;
+    }
+
+    public MemoryListResponse getMemories(String type, Long userId, int page, int size, List<Long> followingUserIds) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Memory> memoryPage;
+        if ("following".equalsIgnoreCase(type) && followingUserIds != null && !followingUserIds.isEmpty()) {
+            memoryPage = memoryRepository.findByUserIdInOrderByCreatedAtDesc(followingUserIds, pageable);
+        } else {
+            // 인기 썰은 추후 공감수 정렬, 현재는 최신과 동일
+            memoryPage = memoryRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+        List<MemoryListItem> items = new ArrayList<>();
+        for (Memory m : memoryPage.getContent()) {
+            MemoryListItem item = new MemoryListItem();
+            item.setId(m.getId());
+            item.setContent(m.getContent());
+            item.setEmotion(m.getEmotion() != null ? m.getEmotion().name() : null);
+            item.setImageUrl(m.getImageUrl());
+            item.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
+            item.setUserId(m.getUserId());
+            items.add(item);
+        }
+        MemoryListResponse response = new MemoryListResponse();
+        response.setMemories(items);
+        response.setTotalPages(memoryPage.getTotalPages());
+        response.setTotalElements(memoryPage.getTotalElements());
+        response.setPage(page);
+        response.setSize(size);
         return response;
     }
 } 
