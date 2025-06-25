@@ -18,7 +18,10 @@ import com.time.PokerFace.like.repository.MemoryLikeRepository;
 import com.time.PokerFace.bookmark.entity.MemoryBookmark;
 import com.time.PokerFace.bookmark.repository.MemoryBookmarkRepository;
 import com.time.PokerFace.comment.service.CommentService;
-import com.time.PokerFace.common.service.S3Uploader;
+import com.time.PokerFace.notification.service.NotificationService;
+import com.time.PokerFace.notification.entity.Notification;
+import com.time.PokerFace.coin.service.CoinService;
+import com.time.PokerFace.myroom.dto.MyRoomResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,22 +43,25 @@ public class MemoryService {
     private final MemoryLikeRepository memoryLikeRepository;
     private final MemoryBookmarkRepository memoryBookmarkRepository;
     private final CommentService commentService;
-    private final S3Uploader s3Uploader;
+    private final NotificationService notificationService;
+    private final CoinService coinService;
 
     @Autowired
-    public MemoryService(MemoryRepository memoryRepository, MemoryLikeRepository memoryLikeRepository, MemoryBookmarkRepository memoryBookmarkRepository, CommentService commentService, S3Uploader s3Uploader) {
+    public MemoryService(MemoryRepository memoryRepository, MemoryLikeRepository memoryLikeRepository, MemoryBookmarkRepository memoryBookmarkRepository, CommentService commentService, NotificationService notificationService, CoinService coinService) {
         this.memoryRepository = memoryRepository;
         this.memoryLikeRepository = memoryLikeRepository;
         this.memoryBookmarkRepository = memoryBookmarkRepository;
         this.commentService = commentService;
-        this.s3Uploader = s3Uploader;
+        this.notificationService = notificationService;
+        this.coinService = coinService;
     }
 
     public MemoryResponse uploadMemory(Long userId, MemoryUploadRequest request) throws IOException {
         String imageUrl = null;
         MultipartFile image = request.getImage();
         if (image != null && !image.isEmpty()) {
-            imageUrl = s3Uploader.upload(image, "memories");
+            // TODO: S3 업로드 구현
+            imageUrl = "temp-image-url";
         }
 
         Emotion emotion = Emotion.valueOf(request.getEmotion().toUpperCase());
@@ -67,6 +73,9 @@ public class MemoryService {
         memory.setImageUrl(imageUrl);
 
         Memory saved = memoryRepository.save(memory);
+
+        // 메모리 업로드 시 코인 적립
+        coinService.earnCoinsForMemoryUpload(userId);
 
         MemoryResponse response = new MemoryResponse();
         response.setId(saved.getId());
@@ -132,7 +141,8 @@ public class MemoryService {
         if (request.getContent() != null) memory.setContent(request.getContent());
         if (request.getEmotion() != null) memory.setEmotion(Emotion.valueOf(request.getEmotion().toUpperCase()));
         if (request.getImage() != null && !request.getImage().isEmpty()) {
-            String imageUrl = s3Uploader.upload(request.getImage(), "memories");
+            // TODO: S3 업로드 구현
+            String imageUrl = "temp-image-url";
             memory.setImageUrl(imageUrl);
         }
         Memory saved = memoryRepository.save(memory);
@@ -161,6 +171,25 @@ public class MemoryService {
         like.setMemoryId(memoryId);
         like.setUserId(userId);
         memoryLikeRepository.save(like);
+
+        // 좋아요 알림 생성
+        Optional<Memory> memoryOpt = memoryRepository.findById(memoryId);
+        if (memoryOpt.isPresent()) {
+            Memory memory = memoryOpt.get();
+            // 자신의 메모리에 좋아요를 누른 경우는 알림 생성하지 않음
+            if (!memory.getUserId().equals(userId)) {
+                notificationService.createNotification(
+                    memory.getUserId(),
+                    Notification.NotificationType.LIKE,
+                    "새로운 좋아요",
+                    "누군가 당신의 메모리에 좋아요를 눌렀습니다.",
+                    memoryId
+                );
+                
+                // 좋아요 받은 사용자에게 코인 적립
+                coinService.earnCoinsForLike(memory.getUserId());
+            }
+        }
     }
 
     public void removeLike(Long memoryId, Long userId) {
@@ -271,11 +300,11 @@ public class MemoryService {
         switch (request.getType().toLowerCase()) {
             case "popular":
                 // 인기 썰 (공감수 높은 순) - 현재는 최신순으로 대체 (공감수 정렬은 추후)
-                memories = memoryRepository.findByEmotionOrderByCreatedAtDesc(emotion, pageable);
+                memories = memoryRepository.findByEmotionOrderByCreatedAtDesc(emotion, pageable).getContent();
                 break;
             case "recent":
                 // 최신 썰
-                memories = memoryRepository.findByEmotionOrderByCreatedAtDesc(emotion, pageable);
+                memories = memoryRepository.findByEmotionOrderByCreatedAtDesc(emotion, pageable).getContent();
                 break;
             case "random":
                 // 랜덤 썰
@@ -358,6 +387,30 @@ public class MemoryService {
         RandomMemoryResponse response = new RandomMemoryResponse();
         response.setMemories(items);
         response.setTotalCount(items.size());
+        return response;
+    }
+
+    public MyRoomResponse getMyMemories(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Memory> memoryPage = memoryRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+        List<MemoryListItem> items = new ArrayList<>();
+        for (Memory m : memoryPage.getContent()) {
+            MemoryListItem item = new MemoryListItem();
+            item.setId(m.getId());
+            item.setContent(m.getContent());
+            item.setEmotion(m.getEmotion() != null ? m.getEmotion().name() : null);
+            item.setImageUrl(m.getImageUrl());
+            item.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
+            item.setUserId(m.getUserId());
+            item.setLikes(getLikeCount(m.getId()));
+            items.add(item);
+        }
+        MyRoomResponse response = new MyRoomResponse();
+        response.setMemories(items);
+        response.setTotalPages(memoryPage.getTotalPages());
+        response.setTotalElements(memoryPage.getTotalElements());
+        response.setPage(page);
+        response.setSize(size);
         return response;
     }
 } 

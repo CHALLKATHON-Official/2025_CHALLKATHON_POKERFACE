@@ -12,6 +12,7 @@ public class MyItemResponse {
         private String imageUrl;
         private String category;
         private String purchasedAt;
+        private String type;
 
         // Getters and Setters
         public Long getId() { return id; }
@@ -26,6 +27,8 @@ public class MyItemResponse {
         public void setCategory(String category) { this.category = category; }
         public String getPurchasedAt() { return purchasedAt; }
         public void setPurchasedAt(String purchasedAt) { this.purchasedAt = purchasedAt; }
+        public void setType(String type) { this.type = type; }
+        public String getType() { return type; }
     }
 
     // Getters and Setters

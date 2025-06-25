@@ -1,6 +1,6 @@
 package com.time.PokerFace.user.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -11,14 +11,12 @@ public class UserSearchHistory {
     private Long id;
 
     private Long userId;
-
-    private String keyword;
-
-    private LocalDateTime createdAt;
+    private String searchKeyword;
+    private LocalDateTime searchedAt;
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
+        this.searchedAt = LocalDateTime.now();
     }
 
     // Getters and Setters
@@ -26,8 +24,8 @@ public class UserSearchHistory {
     public void setId(Long id) { this.id = id; }
     public Long getUserId() { return userId; }
     public void setUserId(Long userId) { this.userId = userId; }
-    public String getKeyword() { return keyword; }
-    public void setKeyword(String keyword) { this.keyword = keyword; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public String getSearchKeyword() { return searchKeyword; }
+    public void setSearchKeyword(String searchKeyword) { this.searchKeyword = searchKeyword; }
+    public LocalDateTime getSearchedAt() { return searchedAt; }
+    public void setSearchedAt(LocalDateTime searchedAt) { this.searchedAt = searchedAt; }
 } 

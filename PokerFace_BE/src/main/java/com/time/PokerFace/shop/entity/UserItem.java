@@ -1,6 +1,6 @@
 package com.time.PokerFace.shop.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

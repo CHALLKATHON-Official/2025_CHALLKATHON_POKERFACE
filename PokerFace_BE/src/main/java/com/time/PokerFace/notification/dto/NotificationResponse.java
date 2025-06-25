@@ -8,6 +8,7 @@ public class NotificationResponse {
     private boolean isRead;
     private Long relatedId;
     private String createdAt;
+    private String message;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -24,4 +25,6 @@ public class NotificationResponse {
     public void setRelatedId(Long relatedId) { this.relatedId = relatedId; }
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
+    public void setMessage(String message) { this.message = message; }
+    public String getMessage() { return message; }
 } 

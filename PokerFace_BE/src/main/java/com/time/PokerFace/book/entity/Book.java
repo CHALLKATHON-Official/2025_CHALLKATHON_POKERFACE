@@ -1,7 +1,7 @@
 package com.time.PokerFace.book.entity;
 
 import com.time.PokerFace.memory.entity.Emotion;
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity

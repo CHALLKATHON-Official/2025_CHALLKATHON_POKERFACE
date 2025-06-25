@@ -2,12 +2,8 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/memorized?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
     username: root
-    password: your_password
+    password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
-
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
 
   jpa:
     hibernate:
@@ -17,6 +13,9 @@ springdoc:
         format_sql: true
     show-sql: true
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
 server:
   port: 8080
 

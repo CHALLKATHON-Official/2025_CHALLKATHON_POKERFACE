@@ -8,9 +8,9 @@ import java.util.List;
 
 @Repository
 public interface UserSearchHistoryRepository extends JpaRepository<UserSearchHistory, Long> {
-    List<UserSearchHistory> findByUserIdOrderByCreatedAtDesc(Long userId);
-    List<UserSearchHistory> findTop10ByUserIdOrderByCreatedAtDesc(Long userId);
+    List<UserSearchHistory> findByUserIdOrderBySearchedAtDesc(Long userId);
+    List<UserSearchHistory> findTop10ByUserIdOrderBySearchedAtDesc(Long userId);
     void deleteByIdAndUserId(Long id, Long userId);
-    List<UserSearchHistory> findTop10ByKeywordStartingWithOrderByCreatedAtDesc(String prefix);
-    List<UserSearchHistory> findTop10ByOrderByKeywordAsc();
+    List<UserSearchHistory> findTop10BySearchKeywordStartingWithOrderBySearchedAtDesc(String prefix);
+    List<UserSearchHistory> findTop10ByOrderBySearchKeywordAsc();
 } 

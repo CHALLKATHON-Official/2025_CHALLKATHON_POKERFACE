@@ -1,6 +1,6 @@
 package com.time.PokerFace.notification.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,7 +18,7 @@ public class Notification {
     private String title;
     
     @Column(columnDefinition = "TEXT")
-    private String content;
+    private String message;
 
     private boolean isRead;
 
@@ -36,7 +36,8 @@ public class Notification {
         FOLLOW,     // 팔로우
         LIKE,       // 좋아요
         COMMENT,    // 댓글
-        SYSTEM      // 시스템 알림
+        SYSTEM,     // 시스템 알림
+        BOOKMARK    // 북마크
     }
 
     // Getters and Setters
@@ -48,8 +49,8 @@ public class Notification {
     public void setType(NotificationType type) { this.type = type; }
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
     public boolean isRead() { return isRead; }
     public void setRead(boolean read) { isRead = read; }
     public Long getRelatedId() { return relatedId; }
