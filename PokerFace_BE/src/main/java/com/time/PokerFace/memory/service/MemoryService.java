@@ -6,7 +6,7 @@ import com.time.PokerFace.memory.dto.MemoryListItem;
 import com.time.PokerFace.memory.dto.MemoryListResponse;
 import com.time.PokerFace.memory.dto.MemoryDetailResponse;
 import com.time.PokerFace.memory.dto.MemoryUpdateRequest;
-import com.time.PokerFace.memory.dto.MyRoomResponse;
+import com.time.PokerFace.memory.dto.MemoryFilterRequest;
 import com.time.PokerFace.memory.entity.Emotion;
 import com.time.PokerFace.memory.entity.Memory;
 import com.time.PokerFace.memory.repository.MemoryRepository;
@@ -16,18 +16,29 @@ import com.time.PokerFace.bookmark.entity.MemoryBookmark;
 import com.time.PokerFace.bookmark.repository.MemoryBookmarkRepository;
 import com.time.PokerFace.comment.service.CommentService;
 import com.time.PokerFace.common.service.S3Uploader;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Collections;
 
+@Service
 public class MemoryService {
-
     private final MemoryRepository memoryRepository;
     private final MemoryLikeRepository memoryLikeRepository;
     private final MemoryBookmarkRepository memoryBookmarkRepository;
     private final CommentService commentService;
     private final S3Uploader s3Uploader;
 
+    @Autowired
     public MemoryService(MemoryRepository memoryRepository, MemoryLikeRepository memoryLikeRepository, MemoryBookmarkRepository memoryBookmarkRepository, CommentService commentService, S3Uploader s3Uploader) {
         this.memoryRepository = memoryRepository;
         this.memoryLikeRepository = memoryLikeRepository;
@@ -36,177 +47,211 @@ public class MemoryService {
         this.s3Uploader = s3Uploader;
     }
 
-    public List<Memory> getAllMemories() {
-        return memoryRepository.findAll();
+    public MemoryResponse uploadMemory(Long userId, MemoryUploadRequest request) throws IOException {
+        String imageUrl = null;
+        MultipartFile image = request.getImage();
+        if (image != null && !image.isEmpty()) {
+            imageUrl = s3Uploader.upload(image, "memories");
+        }
+
+        Emotion emotion = Emotion.valueOf(request.getEmotion().toUpperCase());
+
+        Memory memory = new Memory();
+        memory.setUserId(userId);
+        memory.setContent(request.getContent());
+        memory.setEmotion(emotion);
+        memory.setImageUrl(imageUrl);
+
+        Memory saved = memoryRepository.save(memory);
+
+        MemoryResponse response = new MemoryResponse();
+        response.setId(saved.getId());
+        response.setContent(saved.getContent());
+        response.setEmotion(saved.getEmotion().name());
+        response.setImageUrl(saved.getImageUrl());
+        response.setCreatedAt(saved.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        return response;
     }
 
-    public Optional<Memory> getMemoryById(Long id) {
-        return memoryRepository.findById(id);
+    public MemoryListResponse getMemories(String type, Long userId, int page, int size, List<Long> followingUserIds) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Memory> memoryPage;
+        if ("following".equalsIgnoreCase(type) && followingUserIds != null && !followingUserIds.isEmpty()) {
+            memoryPage = memoryRepository.findByUserIdInOrderByCreatedAtDesc(followingUserIds, pageable);
+        } else {
+            memoryPage = memoryRepository.findAllByOrderByCreatedAtDesc(pageable);
+        }
+        List<MemoryListItem> items = new ArrayList<>();
+        for (Memory m : memoryPage.getContent()) {
+            MemoryListItem item = new MemoryListItem();
+            item.setId(m.getId());
+            item.setContent(m.getContent());
+            item.setEmotion(m.getEmotion() != null ? m.getEmotion().name() : null);
+            item.setImageUrl(m.getImageUrl());
+            item.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
+            item.setUserId(m.getUserId());
+            item.setLikes(getLikeCount(m.getId()));
+            items.add(item);
+        }
+        MemoryListResponse response = new MemoryListResponse();
+        response.setMemories(items);
+        response.setTotalPages(memoryPage.getTotalPages());
+        response.setTotalElements(memoryPage.getTotalElements());
+        response.setPage(page);
+        response.setSize(size);
+        return response;
     }
 
-    public Memory saveMemory(Memory memory) {
-        return memoryRepository.save(memory);
+    public MemoryDetailResponse getMemoryDetail(Long id) {
+        Optional<Memory> optional = memoryRepository.findById(id);
+        if (!optional.isPresent()) {
+            throw new RuntimeException("Memory not found");
+        }
+        Memory m = optional.get();
+        MemoryDetailResponse response = new MemoryDetailResponse();
+        response.setId(m.getId());
+        response.setContent(m.getContent());
+        response.setEmotion(m.getEmotion() != null ? m.getEmotion().name() : null);
+        response.setImageUrl(m.getImageUrl());
+        response.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
+        response.setUserId(m.getUserId());
+        response.setLikes(getLikeCount(m.getId()));
+        response.setComments(commentService.getComments(m.getId()));
+        return response;
     }
 
-    public void deleteMemory(Long id) {
-        memoryRepository.deleteById(id);
+    public MemoryResponse updateMemory(Long id, Long userId, MemoryUpdateRequest request) throws IOException {
+        Memory memory = memoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Memory not found"));
+        if (!memory.getUserId().equals(userId)) {
+            throw new RuntimeException("No permission to update this memory");
+        }
+        if (request.getContent() != null) memory.setContent(request.getContent());
+        if (request.getEmotion() != null) memory.setEmotion(Emotion.valueOf(request.getEmotion().toUpperCase()));
+        if (request.getImage() != null && !request.getImage().isEmpty()) {
+            String imageUrl = s3Uploader.upload(request.getImage(), "memories");
+            memory.setImageUrl(imageUrl);
+        }
+        Memory saved = memoryRepository.save(memory);
+        MemoryResponse response = new MemoryResponse();
+        response.setId(saved.getId());
+        response.setContent(saved.getContent());
+        response.setEmotion(saved.getEmotion().name());
+        response.setImageUrl(saved.getImageUrl());
+        response.setCreatedAt(saved.getCreatedAt().toString());
+        return response;
     }
 
-    public List<MemoryLike> getAllMemoryLikes() {
-        return memoryLikeRepository.findAll();
+    public void deleteMemory(Long id, Long userId) {
+        Memory memory = memoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Memory not found"));
+        if (!memory.getUserId().equals(userId)) {
+            throw new RuntimeException("No permission to delete this memory");
+        }
+        memoryRepository.delete(memory);
     }
 
-    public List<MemoryBookmark> getAllMemoryBookmarks() {
-        return memoryBookmarkRepository.findAll();
+    public void addLike(Long memoryId, Long userId) {
+        if (memoryLikeRepository.findByMemoryIdAndUserId(memoryId, userId).isPresent()) {
+            throw new RuntimeException("Already liked");
+        }
+        MemoryLike like = new MemoryLike();
+        like.setMemoryId(memoryId);
+        like.setUserId(userId);
+        memoryLikeRepository.save(like);
     }
 
-    public MemoryLike saveMemoryLike(MemoryLike memoryLike) {
-        return memoryLikeRepository.save(memoryLike);
+    public void removeLike(Long memoryId, Long userId) {
+        memoryLikeRepository.deleteByMemoryIdAndUserId(memoryId, userId);
     }
 
-    public MemoryBookmark saveMemoryBookmark(MemoryBookmark memoryBookmark) {
-        return memoryBookmarkRepository.save(memoryBookmark);
+    public int getLikeCount(Long memoryId) {
+        return memoryLikeRepository.countByMemoryId(memoryId);
     }
 
-    public void deleteMemoryLike(Long id) {
-        memoryLikeRepository.deleteById(id);
+    public void addBookmark(Long memoryId, Long userId) {
+        if (memoryBookmarkRepository.findByMemoryIdAndUserId(memoryId, userId).isPresent()) {
+            throw new RuntimeException("Already bookmarked");
+        }
+        MemoryBookmark bookmark = new MemoryBookmark();
+        bookmark.setMemoryId(memoryId);
+        bookmark.setUserId(userId);
+        memoryBookmarkRepository.save(bookmark);
     }
 
-    public void deleteMemoryBookmark(Long id) {
-        memoryBookmarkRepository.deleteById(id);
+    public void removeBookmark(Long memoryId, Long userId) {
+        memoryBookmarkRepository.deleteByMemoryIdAndUserId(memoryId, userId);
     }
 
-    public List<Memory> getMemoriesByUserId(Long userId) {
-        return memoryRepository.findByUserId(userId);
+    public MemoryListResponse getBookmarkedMemories(Long userId, int page, int size) {
+        List<MemoryBookmark> bookmarks = memoryBookmarkRepository.findByUserId(userId);
+        List<Long> memoryIds = new ArrayList<>();
+        for (MemoryBookmark b : bookmarks) {
+            memoryIds.add(b.getMemoryId());
+        }
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Memory> memoryPage = memoryRepository.findAllByIdInOrderByCreatedAtDesc(memoryIds, pageable);
+        List<MemoryListItem> items = new ArrayList<>();
+        for (Memory m : memoryPage.getContent()) {
+            MemoryListItem item = new MemoryListItem();
+            item.setId(m.getId());
+            item.setContent(m.getContent());
+            item.setEmotion(m.getEmotion() != null ? m.getEmotion().name() : null);
+            item.setImageUrl(m.getImageUrl());
+            item.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
+            item.setUserId(m.getUserId());
+            item.setLikes(getLikeCount(m.getId()));
+            items.add(item);
+        }
+        MemoryListResponse response = new MemoryListResponse();
+        response.setMemories(items);
+        response.setTotalPages(memoryPage.getTotalPages());
+        response.setTotalElements(memoryPage.getTotalElements());
+        response.setPage(page);
+        response.setSize(size);
+        return response;
     }
 
-    public List<Memory> getMemoriesByRoomId(Long roomId) {
-        return memoryRepository.findByRoomId(roomId);
+    public MemoryListResponse filterMemories(MemoryFilterRequest request, Long userId) {
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+        Page<Memory> memoryPage;
+        
+        // 감정 필터링
+        if (request.getEmotion() != null && !request.getEmotion().isEmpty()) {
+            Emotion emotion = Emotion.valueOf(request.getEmotion().toUpperCase());
+            if (userId != null) {
+                memoryPage = memoryRepository.findByEmotionAndUserIdOrderByCreatedAtDesc(emotion, userId, pageable);
+            } else {
+                memoryPage = memoryRepository.findByEmotionOrderByCreatedAtDesc(emotion, pageable);
+            }
+        } else {
+            // 감정 필터가 없으면 전체 조회
+            if (userId != null) {
+                memoryPage = memoryRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+            } else {
+                memoryPage = memoryRepository.findAllByOrderByCreatedAtDesc(pageable);
+            }
+        }
+        
+        // TODO: 카테고리, 태그 필터링 추가 (추후 확장)
+        
+        List<MemoryListItem> items = new ArrayList<>();
+        for (Memory m : memoryPage.getContent()) {
+            MemoryListItem item = new MemoryListItem();
+            item.setId(m.getId());
+            item.setContent(m.getContent());
+            item.setEmotion(m.getEmotion() != null ? m.getEmotion().name() : null);
+            item.setImageUrl(m.getImageUrl());
+            item.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
+            item.setUserId(m.getUserId());
+            item.setLikes(getLikeCount(m.getId()));
+            items.add(item);
+        }
+        
+        MemoryListResponse response = new MemoryListResponse();
+        response.setMemories(items);
+        response.setTotalPages(memoryPage.getTotalPages());
+        response.setTotalElements(memoryPage.getTotalElements());
+        response.setPage(request.getPage());
+        response.setSize(request.getSize());
+        return response;
     }
-
-    public List<Memory> getMemoriesByEmotion(Emotion emotion) {
-        return memoryRepository.findByEmotion(emotion);
-    }
-
-    public List<Memory> getMemoriesByKeyword(String keyword) {
-        return memoryRepository.findByKeyword(keyword);
-    }
-
-    public List<Memory> getMemoriesByDate(String date) {
-        return memoryRepository.findByDate(date);
-    }
-
-    public List<Memory> getMemoriesByDateRange(String startDate, String endDate) {
-        return memoryRepository.findByDateRange(startDate, endDate);
-    }
-
-    public List<Memory> getMemoriesByDateAndKeyword(String date, String keyword) {
-        return memoryRepository.findByDateAndKeyword(date, keyword);
-    }
-
-    public List<Memory> getMemoriesByDateAndEmotion(String date, Emotion emotion) {
-        return memoryRepository.findByDateAndEmotion(date, emotion);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoom(String date, Long roomId) {
-        return memoryRepository.findByDateAndRoom(date, roomId);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndKeyword(String date, Long roomId, String keyword) {
-        return memoryRepository.findByDateAndRoomAndKeyword(date, roomId, keyword);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndEmotion(String date, Long roomId, Emotion emotion) {
-        return memoryRepository.findByDateAndRoomAndEmotion(date, roomId, emotion);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateRange(String date, Long roomId, String startDate, String endDate) {
-        return memoryRepository.findByDateAndRoomAndDateRange(date, roomId, startDate, endDate);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndKeyword(String date, Long roomId, String keyword) {
-        return memoryRepository.findByDateAndRoomAndDateAndKeyword(date, roomId, keyword);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndEmotion(String date, Long roomId, Emotion emotion) {
-        return memoryRepository.findByDateAndRoomAndDateAndEmotion(date, roomId, emotion);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoom(String date, Long roomId, Long roomId2) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoom(date, roomId, roomId2);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndKeyword(String date, Long roomId, Long roomId2, String keyword) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndKeyword(date, roomId, roomId2, keyword);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndEmotion(String date, Long roomId, Long roomId2, Emotion emotion) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndEmotion(date, roomId, roomId2, emotion);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateRange(String date, Long roomId, Long roomId2, String startDate, String endDate) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateRange(date, roomId, roomId2, startDate, endDate);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndKeyword(String date, Long roomId, Long roomId2, String keyword) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndKeyword(date, roomId, roomId2, keyword);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndEmotion(String date, Long roomId, Long roomId2, Emotion emotion) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndEmotion(date, roomId, roomId2, emotion);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoom(String date, Long roomId, Long roomId2, Long roomId3) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoom(date, roomId, roomId2, roomId3);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndKeyword(String date, Long roomId, Long roomId2, Long roomId3, String keyword) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoomAndKeyword(date, roomId, roomId2, roomId3, keyword);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndEmotion(String date, Long roomId, Long roomId2, Long roomId3, Emotion emotion) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoomAndEmotion(date, roomId, roomId2, roomId3, emotion);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateRange(String date, Long roomId, Long roomId2, Long roomId3, String startDate, String endDate) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateRange(date, roomId, roomId2, roomId3, startDate, endDate);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndKeyword(String date, Long roomId, Long roomId2, Long roomId3, String keyword) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndKeyword(date, roomId, roomId2, roomId3, keyword);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndEmotion(String date, Long roomId, Long roomId2, Long roomId3, Emotion emotion) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndEmotion(date, roomId, roomId2, roomId3, emotion);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoom(String date, Long roomId, Long roomId2, Long roomId3, Long roomId4) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoom(date, roomId, roomId2, roomId3, roomId4);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndKeyword(String date, Long roomId, Long roomId2, Long roomId3, Long roomId4, String keyword) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndKeyword(date, roomId, roomId2, roomId3, roomId4, keyword);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndEmotion(String date, Long roomId, Long roomId2, Long roomId3, Long roomId4, Emotion emotion) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndEmotion(date, roomId, roomId2, roomId3, roomId4, emotion);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndDateRange(String date, Long roomId, Long roomId2, Long roomId3, Long roomId4, String startDate, String endDate) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndDateRange(date, roomId, roomId2, roomId3, roomId4, startDate, endDate);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndKeyword(String date, Long roomId, Long roomId2, Long roomId3, Long roomId4, String keyword) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndKeyword(date, roomId, roomId2, roomId3, roomId4, keyword);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndEmotion(String date, Long roomId, Long roomId2, Long roomId3, Long roomId4, Emotion emotion) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndEmotion(date, roomId, roomId2, roomId3, roomId4, emotion);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoom(String date, Long roomId, Long roomId2, Long roomId3, Long roomId4, Long roomId5) {
-        return memoryRepository.findByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoom(date, roomId, roomId2, roomId3, roomId4, roomId5);
-    }
-
-    public List<Memory> getMemoriesByDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndDateAndRoomAndKeyword(String date, Long roomId, Long roomId2, Long roomId3, Long roomId4, Long roomId5, String keyword) {
-package com.time.PokerFace.memory.service; 
+} 
