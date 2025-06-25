@@ -35,3 +35,9 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: false
+
+# Book API Configuration
+book:
+  api:
+    url: https://www.googleapis.com/books/v1/volumes
+    key: ${GOOGLE_BOOKS_API_KEY:} # 환경변수로 설정하거나 직접 입력
