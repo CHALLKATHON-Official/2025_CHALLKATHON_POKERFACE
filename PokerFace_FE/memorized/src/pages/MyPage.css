@@ -1,0 +1,67 @@
+.mypage-card {
+  max-width: 420px;
+  margin: 60px auto 0 auto;
+  padding: 2.5rem 2rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+}
+.mypage-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+}
+.mypage-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2.5px solid var(--color-main-purple);
+  box-shadow: 0 2px 8px #b8b6ff33;
+}
+.mypage-nickname {
+  font-family: var(--font-title);
+  font-size: 1.3rem;
+  color: var(--color-main-purple);
+  font-weight: 600;
+}
+.mypage-icon {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 4px #b8b6ff88);
+}
+.mypage-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+}
+.mypage-tab {
+  background: #f6f5f2;
+  color: var(--color-main-purple);
+  border: none;
+  border-radius: 0.8rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.mypage-tab.active, .mypage-tab:hover {
+  background: linear-gradient(90deg, var(--color-main-purple), var(--color-main-pink));
+  color: var(--color-white);
+}
+.mypage-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.mypage-list-item {
+  background: #f6f5f2;
+  color: var(--color-charcoal);
+  border-radius: 0.7rem;
+  padding: 0.7rem 1rem;
+  font-size: 1.05rem;
+  box-shadow: 0 1px 4px #b8b6ff11;
+} 
