@@ -1,0 +1,91 @@
+.feed-root {
+  min-height: 100vh;
+  background: #f7f8fa;
+}
+.feed-nav {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 0 1.5rem 0;
+}
+.feed-logo {
+  font-family: 'Pretendard', 'Arial', sans-serif;
+  font-size: 1.5rem;
+  color: #6a5acd;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.feed-logout {
+  background: #e3e6ee;
+  color: #6a5acd;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.feed-logout:hover {
+  background: #b8c6ff;
+  color: #fff;
+}
+.feed-container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 1.2rem;
+  border: 1px solid #e3e6ee;
+  padding: 2rem 2rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.alice-title {
+  font-family: 'Pretendard', 'Arial', sans-serif;
+  font-size: 2rem;
+  color: #6a5acd;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.feed-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.feed-card {
+  background: #f7f8fa;
+  border-radius: 0.7rem;
+  border: 1px solid #e3e6ee;
+  padding: 1.2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.feed-card-user {
+  color: #6a5acd;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.feed-card-content {
+  color: #222;
+  font-size: 1.08rem;
+  margin: 0.2rem 0 0.3rem 0;
+}
+.feed-card-date {
+  color: #b8b8ff;
+  font-size: 0.95rem;
+  align-self: flex-end;
+}
+.feed-empty {
+  color: #a3a1ff;
+  font-size: 1.1rem;
+  margin-top: 2rem;
+  font-family: 'Gowun Dodum', 'Arial Rounded MT Bold', Arial, sans-serif;
+  letter-spacing: 0.02em;
+} 
