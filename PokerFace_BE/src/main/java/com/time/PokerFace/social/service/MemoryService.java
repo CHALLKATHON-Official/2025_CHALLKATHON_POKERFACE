@@ -11,6 +11,7 @@ import com.time.PokerFace.social.entity.Memory;
 import com.time.PokerFace.social.entity.MemoryLike;
 import com.time.PokerFace.social.repository.MemoryRepository;
 import com.time.PokerFace.social.repository.MemoryLikeRepository;
+import com.time.PokerFace.social.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,12 +31,14 @@ public class MemoryService {
     private final MemoryRepository memoryRepository;
     private final S3Uploader s3Uploader;
     private final MemoryLikeRepository memoryLikeRepository;
+    private final CommentService commentService;
 
     @Autowired
-    public MemoryService(MemoryRepository memoryRepository, S3Uploader s3Uploader, MemoryLikeRepository memoryLikeRepository) {
+    public MemoryService(MemoryRepository memoryRepository, S3Uploader s3Uploader, MemoryLikeRepository memoryLikeRepository, CommentService commentService) {
         this.memoryRepository = memoryRepository;
         this.s3Uploader = s3Uploader;
         this.memoryLikeRepository = memoryLikeRepository;
+        this.commentService = commentService;
     }
 
     public MemoryResponse uploadMemory(Long userId, MemoryUploadRequest request) throws IOException {
@@ -108,7 +111,7 @@ public class MemoryService {
         response.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
         response.setUserId(m.getUserId());
         response.setLikes(getLikeCount(m.getId()));
-        response.setComments(Collections.emptyList()); // TODO: 댓글 연동
+        response.setComments(commentService.getComments(m.getId()));
         return response;
     }
 

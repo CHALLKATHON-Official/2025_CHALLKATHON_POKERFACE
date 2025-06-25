@@ -5,7 +5,10 @@ import com.time.PokerFace.social.dto.MemoryResponse;
 import com.time.PokerFace.social.dto.MemoryListResponse;
 import com.time.PokerFace.social.dto.MemoryDetailResponse;
 import com.time.PokerFace.social.dto.MemoryUpdateRequest;
+import com.time.PokerFace.social.dto.CommentRequest;
+import com.time.PokerFace.social.dto.CommentResponse;
 import com.time.PokerFace.social.service.MemoryService;
+import com.time.PokerFace.social.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -21,10 +24,12 @@ import java.util.List;
 @RequestMapping("/api/memories")
 public class MemoryController {
     private final MemoryService memoryService;
+    private final CommentService commentService;
 
     @Autowired
-    public MemoryController(MemoryService memoryService) {
+    public MemoryController(MemoryService memoryService, CommentService commentService) {
         this.memoryService = memoryService;
+        this.commentService = commentService;
     }
 
     @PostMapping(consumes = {"multipart/form-data"})
@@ -129,5 +134,39 @@ public class MemoryController {
         }
         memoryService.removeLike(id, userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<CommentResponse> addComment(@PathVariable Long id, @RequestBody CommentRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            String username = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+            userId = Long.parseLong(username); // 실제 구현에 맞게 수정 필요
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+        CommentResponse response = commentService.addComment(id, userId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id, @PathVariable Long commentId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            String username = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+            userId = Long.parseLong(username); // 실제 구현에 맞게 수정 필요
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+        commentService.deleteComment(commentId, userId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<CommentResponse>> getComments(@PathVariable Long id) {
+        List<CommentResponse> responses = commentService.getComments(id);
+        return ResponseEntity.ok(responses);
     }
 } 
