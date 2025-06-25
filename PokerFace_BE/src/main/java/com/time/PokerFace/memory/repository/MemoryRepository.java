@@ -12,9 +12,15 @@ import java.util.List;
 
 @Repository
 public interface MemoryRepository extends JpaRepository<Memory, Long> {
+    // 기본 조회 메서드들
+    Page<Memory> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    Page<Memory> findByUserIdInOrderByCreatedAtDesc(List<Long> userIds, Pageable pageable);
+    Page<Memory> findAllByIdInOrderByCreatedAtDesc(List<Long> ids, Pageable pageable);
+    Page<Memory> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
+    
+    // 감정별 조회 메서드들
     Page<Memory> findByEmotionOrderByCreatedAtDesc(Emotion emotion, Pageable pageable);
     Page<Memory> findByEmotionAndUserIdOrderByCreatedAtDesc(Emotion emotion, Long userId, Pageable pageable);
-    List<Memory> findByEmotionOrderByCreatedAtDesc(Emotion emotion, Pageable pageable);
     List<Memory> findByEmotionOrderByLikesDesc(Emotion emotion, Pageable pageable);
     List<Memory> findByEmotion(Emotion emotion);
     

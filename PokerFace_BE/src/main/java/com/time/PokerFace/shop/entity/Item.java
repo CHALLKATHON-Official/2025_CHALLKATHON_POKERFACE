@@ -1,6 +1,6 @@
 package com.time.PokerFace.shop.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,27 +18,20 @@ public class Item {
 
     private int price;
 
-    private String imageUrl;
-
     @Enumerated(EnumType.STRING)
-    private ItemCategory category;
+    private ItemType type;
 
-    private boolean isActive;
+    private String imageUrl;
 
     private LocalDateTime createdAt;
 
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
-        this.isActive = true;
     }
 
-    public enum ItemCategory {
-        DECORATION,  // 장식 아이템
-        BACKGROUND,  // 배경
-        FRAME,       // 프레임
-        EFFECT,      // 효과
-        SPECIAL      // 특별 아이템
+    public enum ItemType {
+        BACKGROUND, FURNITURE, DECORATION, MUSIC
     }
 
     // Getters and Setters
@@ -50,12 +43,10 @@ public class Item {
     public void setDescription(String description) { this.description = description; }
     public int getPrice() { return price; }
     public void setPrice(int price) { this.price = price; }
+    public ItemType getType() { return type; }
+    public void setType(ItemType type) { this.type = type; }
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-    public ItemCategory getCategory() { return category; }
-    public void setCategory(ItemCategory category) { this.category = category; }
-    public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { isActive = active; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 } 

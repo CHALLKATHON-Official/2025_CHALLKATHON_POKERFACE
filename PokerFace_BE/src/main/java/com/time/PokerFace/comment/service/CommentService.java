@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
 public class CommentService {
@@ -37,6 +38,15 @@ public class CommentService {
 
     public Optional<Comment> getCommentById(Long id) {
         return commentRepository.findById(id);
+    }
+
+    public List<String> getComments(Long memoryId) {
+        List<Comment> comments = commentRepository.findByMemoryIdOrderByCreatedAtAsc(memoryId);
+        List<String> commentContents = new ArrayList<>();
+        for (Comment comment : comments) {
+            commentContents.add(comment.getContent());
+        }
+        return commentContents;
     }
 
     public Comment createComment(CommentRequest commentRequest) {
