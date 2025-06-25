@@ -17,6 +17,7 @@ import com.time.PokerFace.social.repository.MemoryBookmarkRepository;
 import com.time.PokerFace.social.service.CommentService;
 import com.time.PokerFace.notification.service.NotificationService;
 import com.time.PokerFace.notification.entity.Notification;
+import com.time.PokerFace.coin.service.CoinService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,15 +40,17 @@ public class MemoryService {
     private final MemoryBookmarkRepository memoryBookmarkRepository;
     private final CommentService commentService;
     private final NotificationService notificationService;
+    private final CoinService coinService;
 
     @Autowired
-    public MemoryService(MemoryRepository memoryRepository, S3Uploader s3Uploader, MemoryLikeRepository memoryLikeRepository, MemoryBookmarkRepository memoryBookmarkRepository, CommentService commentService, NotificationService notificationService) {
+    public MemoryService(MemoryRepository memoryRepository, S3Uploader s3Uploader, MemoryLikeRepository memoryLikeRepository, MemoryBookmarkRepository memoryBookmarkRepository, CommentService commentService, NotificationService notificationService, CoinService coinService) {
         this.memoryRepository = memoryRepository;
         this.s3Uploader = s3Uploader;
         this.memoryLikeRepository = memoryLikeRepository;
         this.memoryBookmarkRepository = memoryBookmarkRepository;
         this.commentService = commentService;
         this.notificationService = notificationService;
+        this.coinService = coinService;
     }
 
     public MemoryResponse uploadMemory(Long userId, MemoryUploadRequest request) throws IOException {
@@ -66,6 +69,9 @@ public class MemoryService {
         memory.setImageUrl(imageUrl);
 
         Memory saved = memoryRepository.save(memory);
+
+        // 메모리 업로드 시 코인 적립
+        coinService.earnCoinsForMemoryUpload(userId);
 
         MemoryResponse response = new MemoryResponse();
         response.setId(saved.getId());
@@ -175,6 +181,9 @@ public class MemoryService {
                     "누군가 당신의 메모리에 좋아요를 눌렀습니다.",
                     memoryId
                 );
+                
+                // 좋아요 받은 사용자에게 코인 적립
+                coinService.earnCoinsForLike(memory.getUserId());
             }
         }
     }

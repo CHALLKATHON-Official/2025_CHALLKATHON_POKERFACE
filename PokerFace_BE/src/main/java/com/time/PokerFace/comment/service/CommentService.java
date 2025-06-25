@@ -8,6 +8,7 @@ import com.time.PokerFace.notification.service.NotificationService;
 import com.time.PokerFace.notification.entity.Notification;
 import com.time.PokerFace.memory.repository.MemoryRepository;
 import com.time.PokerFace.memory.entity.Memory;
+import com.time.PokerFace.coin.service.CoinService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +21,14 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final NotificationService notificationService;
     private final MemoryRepository memoryRepository;
+    private final CoinService coinService;
 
     @Autowired
-    public CommentService(CommentRepository commentRepository, NotificationService notificationService, MemoryRepository memoryRepository) {
+    public CommentService(CommentRepository commentRepository, NotificationService notificationService, MemoryRepository memoryRepository, CoinService coinService) {
         this.commentRepository = commentRepository;
         this.notificationService = notificationService;
         this.memoryRepository = memoryRepository;
+        this.coinService = coinService;
     }
 
     public List<Comment> getAllComments() {
@@ -56,6 +59,9 @@ public class CommentService {
                     "누군가 당신의 메모리에 댓글을 남겼습니다.",
                     commentRequest.getMemoryId()
                 );
+                
+                // 댓글 받은 사용자에게 코인 적립
+                coinService.earnCoinsForComment(memory.getUserId());
             }
         }
 

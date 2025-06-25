@@ -6,6 +6,7 @@ import com.time.PokerFace.social.entity.Follow;
 import com.time.PokerFace.social.repository.FollowRepository;
 import com.time.PokerFace.notification.service.NotificationService;
 import com.time.PokerFace.notification.entity.Notification;
+import com.time.PokerFace.coin.service.CoinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ public class FollowService {
     private final FollowRepository followRepository;
     private final UserRepository userRepository;
     private final NotificationService notificationService;
+    private final CoinService coinService;
 
     public void follow(String followerUsername, String targetUsername) {
         if (followerUsername.equals(targetUsername)) {
@@ -47,6 +49,9 @@ public class FollowService {
             followerUsername + "님이 당신을 팔로우하기 시작했습니다.",
             follower.getId()
         );
+        
+        // 팔로우 받은 사용자에게 코인 적립
+        coinService.earnCoinsForFollow(following.getId());
     }
 
     public void unfollow(String followerUsername, String targetUsername) {
