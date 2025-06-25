@@ -7,6 +7,7 @@ import com.time.PokerFace.social.dto.MemoryDetailResponse;
 import com.time.PokerFace.social.dto.MemoryUpdateRequest;
 import com.time.PokerFace.social.dto.CommentRequest;
 import com.time.PokerFace.social.dto.CommentResponse;
+import com.time.PokerFace.social.dto.MyRoomResponse;
 import com.time.PokerFace.social.service.MemoryService;
 import com.time.PokerFace.social.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -212,6 +213,23 @@ public class MemoryController {
             return ResponseEntity.status(401).build();
         }
         MemoryListResponse response = memoryService.getBookmarkedMemories(userId, page, size);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/myroom")
+    public ResponseEntity<MyRoomResponse> getMyRoom(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            String username = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+            userId = Long.parseLong(username); // 실제 구현에 맞게 수정 필요
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+        MyRoomResponse response = memoryService.getMyMemories(userId, page, size);
         return ResponseEntity.ok(response);
     }
 } 

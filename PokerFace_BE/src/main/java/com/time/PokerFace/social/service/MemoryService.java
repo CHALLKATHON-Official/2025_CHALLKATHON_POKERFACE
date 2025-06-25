@@ -6,6 +6,7 @@ import com.time.PokerFace.social.dto.MemoryListItem;
 import com.time.PokerFace.social.dto.MemoryListResponse;
 import com.time.PokerFace.social.dto.MemoryDetailResponse;
 import com.time.PokerFace.social.dto.MemoryUpdateRequest;
+import com.time.PokerFace.social.dto.MyRoomResponse;
 import com.time.PokerFace.social.entity.Emotion;
 import com.time.PokerFace.social.entity.Memory;
 import com.time.PokerFace.social.entity.MemoryLike;
@@ -201,6 +202,30 @@ public class MemoryService {
             items.add(item);
         }
         MemoryListResponse response = new MemoryListResponse();
+        response.setMemories(items);
+        response.setTotalPages(memoryPage.getTotalPages());
+        response.setTotalElements(memoryPage.getTotalElements());
+        response.setPage(page);
+        response.setSize(size);
+        return response;
+    }
+
+    public MyRoomResponse getMyMemories(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Memory> memoryPage = memoryRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+        List<MemoryListItem> items = new ArrayList<>();
+        for (Memory m : memoryPage.getContent()) {
+            MemoryListItem item = new MemoryListItem();
+            item.setId(m.getId());
+            item.setContent(m.getContent());
+            item.setEmotion(m.getEmotion() != null ? m.getEmotion().name() : null);
+            item.setImageUrl(m.getImageUrl());
+            item.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
+            item.setUserId(m.getUserId());
+            item.setLikes(getLikeCount(m.getId()));
+            items.add(item);
+        }
+        MyRoomResponse response = new MyRoomResponse();
         response.setMemories(items);
         response.setTotalPages(memoryPage.getTotalPages());
         response.setTotalElements(memoryPage.getTotalElements());
