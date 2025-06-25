@@ -3,6 +3,8 @@ package com.time.PokerFace.social.controller;
 import com.time.PokerFace.social.dto.MemoryUploadRequest;
 import com.time.PokerFace.social.dto.MemoryResponse;
 import com.time.PokerFace.social.dto.MemoryListResponse;
+import com.time.PokerFace.social.dto.MemoryDetailResponse;
+import com.time.PokerFace.social.dto.MemoryUpdateRequest;
 import com.time.PokerFace.social.service.MemoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -62,5 +64,42 @@ public class MemoryController {
         List<Long> followingUserIds = Arrays.asList(2L, 3L); // TODO: 실제 팔로우 유저 id로 대체
         MemoryListResponse response = memoryService.getMemories(type, userId, page, size, followingUserIds);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MemoryDetailResponse> getMemoryDetail(@PathVariable Long id) {
+        MemoryDetailResponse response = memoryService.getMemoryDetail(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    public ResponseEntity<MemoryResponse> updateMemory(
+            @PathVariable Long id,
+            @ModelAttribute MemoryUpdateRequest request
+    ) throws IOException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            String username = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+            userId = Long.parseLong(username); // 실제 구현에 맞게 수정 필요
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+        MemoryResponse response = memoryService.updateMemory(id, userId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMemory(@PathVariable Long id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof org.springframework.security.core.userdetails.UserDetails) {
+            String username = ((org.springframework.security.core.userdetails.UserDetails) authentication.getPrincipal()).getUsername();
+            userId = Long.parseLong(username); // 실제 구현에 맞게 수정 필요
+        } else {
+            return ResponseEntity.status(401).build();
+        }
+        memoryService.deleteMemory(id, userId);
+        return ResponseEntity.noContent().build();
     }
 } 

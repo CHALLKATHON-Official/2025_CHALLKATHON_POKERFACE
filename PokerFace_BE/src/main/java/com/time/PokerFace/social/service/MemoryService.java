@@ -4,6 +4,8 @@ import com.time.PokerFace.social.dto.MemoryUploadRequest;
 import com.time.PokerFace.social.dto.MemoryResponse;
 import com.time.PokerFace.social.dto.MemoryListItem;
 import com.time.PokerFace.social.dto.MemoryListResponse;
+import com.time.PokerFace.social.dto.MemoryDetailResponse;
+import com.time.PokerFace.social.dto.MemoryUpdateRequest;
 import com.time.PokerFace.social.entity.Emotion;
 import com.time.PokerFace.social.entity.Memory;
 import com.time.PokerFace.social.repository.MemoryRepository;
@@ -18,6 +20,8 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Collections;
 
 @Service
 public class MemoryService {
@@ -83,5 +87,52 @@ public class MemoryService {
         response.setPage(page);
         response.setSize(size);
         return response;
+    }
+
+    public MemoryDetailResponse getMemoryDetail(Long id) {
+        Optional<Memory> optional = memoryRepository.findById(id);
+        if (!optional.isPresent()) {
+            throw new RuntimeException("Memory not found");
+        }
+        Memory m = optional.get();
+        MemoryDetailResponse response = new MemoryDetailResponse();
+        response.setId(m.getId());
+        response.setContent(m.getContent());
+        response.setEmotion(m.getEmotion() != null ? m.getEmotion().name() : null);
+        response.setImageUrl(m.getImageUrl());
+        response.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
+        response.setUserId(m.getUserId());
+        response.setLikes(0); // TODO: 공감수 연동
+        response.setComments(Collections.emptyList()); // TODO: 댓글 연동
+        return response;
+    }
+
+    public MemoryResponse updateMemory(Long id, Long userId, MemoryUpdateRequest request) throws IOException {
+        Memory memory = memoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Memory not found"));
+        if (!memory.getUserId().equals(userId)) {
+            throw new RuntimeException("No permission to update this memory");
+        }
+        if (request.getContent() != null) memory.setContent(request.getContent());
+        if (request.getEmotion() != null) memory.setEmotion(Emotion.valueOf(request.getEmotion().toUpperCase()));
+        if (request.getImage() != null && !request.getImage().isEmpty()) {
+            String imageUrl = s3Uploader.upload(request.getImage(), "memories");
+            memory.setImageUrl(imageUrl);
+        }
+        Memory saved = memoryRepository.save(memory);
+        MemoryResponse response = new MemoryResponse();
+        response.setId(saved.getId());
+        response.setContent(saved.getContent());
+        response.setEmotion(saved.getEmotion().name());
+        response.setImageUrl(saved.getImageUrl());
+        response.setCreatedAt(saved.getCreatedAt().toString());
+        return response;
+    }
+
+    public void deleteMemory(Long id, Long userId) {
+        Memory memory = memoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Memory not found"));
+        if (!memory.getUserId().equals(userId)) {
+            throw new RuntimeException("No permission to delete this memory");
+        }
+        memoryRepository.delete(memory);
     }
 } 
