@@ -1,10 +1,16 @@
 package com.time.PokerFace.shop.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "items")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +31,8 @@ public class Item {
 
     private LocalDateTime createdAt;
 
+    private boolean isActive = true;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -33,20 +41,4 @@ public class Item {
     public enum ItemType {
         BACKGROUND, FURNITURE, DECORATION, MUSIC
     }
-
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public int getPrice() { return price; }
-    public void setPrice(int price) { this.price = price; }
-    public ItemType getType() { return type; }
-    public void setType(ItemType type) { this.type = type; }
-    public String getImageUrl() { return imageUrl; }
-    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 } 

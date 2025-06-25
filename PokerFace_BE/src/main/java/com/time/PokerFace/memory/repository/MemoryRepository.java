@@ -21,7 +21,6 @@ public interface MemoryRepository extends JpaRepository<Memory, Long> {
     // 감정별 조회 메서드들
     Page<Memory> findByEmotionOrderByCreatedAtDesc(Emotion emotion, Pageable pageable);
     Page<Memory> findByEmotionAndUserIdOrderByCreatedAtDesc(Emotion emotion, Long userId, Pageable pageable);
-    List<Memory> findByEmotionOrderByLikesDesc(Emotion emotion, Pageable pageable);
     List<Memory> findByEmotion(Emotion emotion);
     
     // 랜덤 조회 메서드들

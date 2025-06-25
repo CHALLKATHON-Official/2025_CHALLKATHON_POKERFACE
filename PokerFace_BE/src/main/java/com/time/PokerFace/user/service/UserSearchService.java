@@ -17,19 +17,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class UserService {
+public class UserSearchService {
     private final UserRepository userRepository;
     private final UserSearchHistoryRepository userSearchHistoryRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, UserSearchHistoryRepository userSearchHistoryRepository) {
+    public UserSearchService(UserRepository userRepository, UserSearchHistoryRepository userSearchHistoryRepository) {
         this.userRepository = userRepository;
         this.userSearchHistoryRepository = userSearchHistoryRepository;
     }
 
     // 사용자 검색 (닉네임, 이메일, 이름)
     public List<UserSearchResponse> searchUsers(Long userId, String query) {
-        List<User> users = userRepository.findTop20ByUsernameContainingIgnoreCaseOrNicknameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query, query);
+        List<User> users = userRepository.findTop20ByUsernameContainingIgnoreCaseOrEmailContainingIgnoreCase(query, query);
         // 검색 히스토리 저장
         saveSearchHistory(userId, query);
         return users.stream().map(this::toSearchResponse).collect(Collectors.toList());
@@ -46,7 +46,7 @@ public class UserService {
 
     // 내 검색 히스토리 조회
     public List<UserSearchHistoryResponse> getSearchHistory(Long userId) {
-        List<UserSearchHistory> historyList = userSearchHistoryRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
+        List<UserSearchHistory> historyList = userSearchHistoryRepository.findTop10ByUserIdOrderBySearchedAtDesc(userId);
         List<UserSearchHistoryResponse> responses = new ArrayList<>();
         for (UserSearchHistory h : historyList) {
             UserSearchHistoryResponse dto = new UserSearchHistoryResponse();
@@ -67,7 +67,7 @@ public class UserService {
     public UserSearchSuggestResponse suggestKeywords(Long userId, String prefix) {
         List<String> result = new ArrayList<>();
         // 내 히스토리에서 prefix로 시작하는 것
-        List<UserSearchHistory> myHistory = userSearchHistoryRepository.findTop10ByUserIdOrderByCreatedAtDesc(userId);
+        List<UserSearchHistory> myHistory = userSearchHistoryRepository.findTop10ByUserIdOrderBySearchedAtDesc(userId);
         for (UserSearchHistory h : myHistory) {
             if (prefix == null || h.getSearchKeyword().toLowerCase().startsWith(prefix.toLowerCase())) {
                 result.add(h.getSearchKeyword());

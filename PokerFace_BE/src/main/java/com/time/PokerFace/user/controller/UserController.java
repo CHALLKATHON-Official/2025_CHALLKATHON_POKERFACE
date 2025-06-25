@@ -3,7 +3,7 @@ package com.time.PokerFace.user.controller;
 import com.time.PokerFace.user.dto.UserSearchResponse;
 import com.time.PokerFace.user.dto.UserSearchHistoryResponse;
 import com.time.PokerFace.user.dto.UserSearchSuggestResponse;
-import com.time.PokerFace.user.service.UserService;
+import com.time.PokerFace.user.service.UserSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,11 +15,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    private final UserService userService;
+    private final UserSearchService userSearchService;
 
     @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserSearchService userSearchService) {
+        this.userSearchService = userSearchService;
     }
 
     @GetMapping("/search")
@@ -32,7 +32,7 @@ public class UserController {
         } else {
             return ResponseEntity.status(401).build();
         }
-        List<UserSearchResponse> results = userService.searchUsers(userId, query);
+        List<UserSearchResponse> results = userSearchService.searchUsers(userId, query);
         return ResponseEntity.ok(results);
     }
 
@@ -46,7 +46,7 @@ public class UserController {
         } else {
             return ResponseEntity.status(401).build();
         }
-        List<UserSearchHistoryResponse> history = userService.getSearchHistory(userId);
+        List<UserSearchHistoryResponse> history = userSearchService.getSearchHistory(userId);
         return ResponseEntity.ok(history);
     }
 
@@ -60,7 +60,7 @@ public class UserController {
         } else {
             return ResponseEntity.status(401).build();
         }
-        userService.deleteSearchHistory(userId, id);
+        userSearchService.deleteSearchHistory(userId, id);
         return ResponseEntity.ok().build();
     }
 
@@ -74,7 +74,7 @@ public class UserController {
         } else {
             return ResponseEntity.status(401).build();
         }
-        UserSearchSuggestResponse response = userService.suggestKeywords(userId, prefix);
+        UserSearchSuggestResponse response = userSearchService.suggestKeywords(userId, prefix);
         return ResponseEntity.ok(response);
     }
 } 
