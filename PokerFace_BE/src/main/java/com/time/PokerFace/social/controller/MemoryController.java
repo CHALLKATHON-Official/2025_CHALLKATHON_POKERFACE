@@ -3,6 +3,7 @@ package com.time.PokerFace.social.controller;
 import com.time.PokerFace.social.dto.MemoryUploadRequest;
 import com.time.PokerFace.social.dto.MemoryResponse;
 import com.time.PokerFace.social.dto.MemoryListResponse;
+import com.time.PokerFace.social.dto.MemoryDetailResponse;
 import com.time.PokerFace.social.service.MemoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -61,6 +62,12 @@ public class MemoryController {
         // 팔로우 유저 id 리스트 예시 (실제 연동 필요)
         List<Long> followingUserIds = Arrays.asList(2L, 3L); // TODO: 실제 팔로우 유저 id로 대체
         MemoryListResponse response = memoryService.getMemories(type, userId, page, size, followingUserIds);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MemoryDetailResponse> getMemoryDetail(@PathVariable Long id) {
+        MemoryDetailResponse response = memoryService.getMemoryDetail(id);
         return ResponseEntity.ok(response);
     }
 } 

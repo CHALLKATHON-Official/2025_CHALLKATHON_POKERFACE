@@ -4,6 +4,7 @@ import com.time.PokerFace.social.dto.MemoryUploadRequest;
 import com.time.PokerFace.social.dto.MemoryResponse;
 import com.time.PokerFace.social.dto.MemoryListItem;
 import com.time.PokerFace.social.dto.MemoryListResponse;
+import com.time.PokerFace.social.dto.MemoryDetailResponse;
 import com.time.PokerFace.social.entity.Emotion;
 import com.time.PokerFace.social.entity.Memory;
 import com.time.PokerFace.social.repository.MemoryRepository;
@@ -18,6 +19,8 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.Collections;
 
 @Service
 public class MemoryService {
@@ -82,6 +85,24 @@ public class MemoryService {
         response.setTotalElements(memoryPage.getTotalElements());
         response.setPage(page);
         response.setSize(size);
+        return response;
+    }
+
+    public MemoryDetailResponse getMemoryDetail(Long id) {
+        Optional<Memory> optional = memoryRepository.findById(id);
+        if (!optional.isPresent()) {
+            throw new RuntimeException("Memory not found");
+        }
+        Memory m = optional.get();
+        MemoryDetailResponse response = new MemoryDetailResponse();
+        response.setId(m.getId());
+        response.setContent(m.getContent());
+        response.setEmotion(m.getEmotion() != null ? m.getEmotion().name() : null);
+        response.setImageUrl(m.getImageUrl());
+        response.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
+        response.setUserId(m.getUserId());
+        response.setLikes(0); // TODO: 공감수 연동
+        response.setComments(Collections.emptyList()); // TODO: 댓글 연동
         return response;
     }
 } 
