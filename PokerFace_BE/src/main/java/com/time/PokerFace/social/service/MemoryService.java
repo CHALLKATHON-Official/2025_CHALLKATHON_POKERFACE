@@ -8,7 +8,9 @@ import com.time.PokerFace.social.dto.MemoryDetailResponse;
 import com.time.PokerFace.social.dto.MemoryUpdateRequest;
 import com.time.PokerFace.social.entity.Emotion;
 import com.time.PokerFace.social.entity.Memory;
+import com.time.PokerFace.social.entity.MemoryLike;
 import com.time.PokerFace.social.repository.MemoryRepository;
+import com.time.PokerFace.social.repository.MemoryLikeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,11 +29,13 @@ import java.util.Collections;
 public class MemoryService {
     private final MemoryRepository memoryRepository;
     private final S3Uploader s3Uploader;
+    private final MemoryLikeRepository memoryLikeRepository;
 
     @Autowired
-    public MemoryService(MemoryRepository memoryRepository, S3Uploader s3Uploader) {
+    public MemoryService(MemoryRepository memoryRepository, S3Uploader s3Uploader, MemoryLikeRepository memoryLikeRepository) {
         this.memoryRepository = memoryRepository;
         this.s3Uploader = s3Uploader;
+        this.memoryLikeRepository = memoryLikeRepository;
     }
 
     public MemoryResponse uploadMemory(Long userId, MemoryUploadRequest request) throws IOException {
@@ -78,6 +82,7 @@ public class MemoryService {
             item.setImageUrl(m.getImageUrl());
             item.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
             item.setUserId(m.getUserId());
+            item.setLikes(getLikeCount(m.getId()));
             items.add(item);
         }
         MemoryListResponse response = new MemoryListResponse();
@@ -102,7 +107,7 @@ public class MemoryService {
         response.setImageUrl(m.getImageUrl());
         response.setCreatedAt(m.getCreatedAt() != null ? m.getCreatedAt().toString() : null);
         response.setUserId(m.getUserId());
-        response.setLikes(0); // TODO: 공감수 연동
+        response.setLikes(getLikeCount(m.getId()));
         response.setComments(Collections.emptyList()); // TODO: 댓글 연동
         return response;
     }
@@ -134,5 +139,23 @@ public class MemoryService {
             throw new RuntimeException("No permission to delete this memory");
         }
         memoryRepository.delete(memory);
+    }
+
+    public void addLike(Long memoryId, Long userId) {
+        if (memoryLikeRepository.findByMemoryIdAndUserId(memoryId, userId).isPresent()) {
+            throw new RuntimeException("Already liked");
+        }
+        MemoryLike like = new MemoryLike();
+        like.setMemoryId(memoryId);
+        like.setUserId(userId);
+        memoryLikeRepository.save(like);
+    }
+
+    public void removeLike(Long memoryId, Long userId) {
+        memoryLikeRepository.deleteByMemoryIdAndUserId(memoryId, userId);
+    }
+
+    public int getLikeCount(Long memoryId) {
+        return memoryLikeRepository.countByMemoryId(memoryId);
     }
 } 
