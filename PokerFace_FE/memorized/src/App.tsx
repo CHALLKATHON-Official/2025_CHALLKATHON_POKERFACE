@@ -5,6 +5,7 @@ import Feed from './pages/Feed'
 import Write from './pages/Write'
 import Search from './pages/Search'
 import MyPage from './pages/MyPage'
+import Notification from './pages/Notification'
 import './App.css'
 
 function MenuBar() {
@@ -18,7 +19,7 @@ function MenuBar() {
           <button className={location.pathname === '/' ? 'menubar-btn active' : 'menubar-btn'} onClick={() => navigate('/')}>홈</button>
           <button className={location.pathname === '/search' ? 'menubar-btn active' : 'menubar-btn'} onClick={() => navigate('/search')}>검색</button>
           <button className={location.pathname === '/write' ? 'menubar-btn active' : 'menubar-btn'} onClick={() => navigate('/write')}>글쓰기</button>
-          <button className={location.pathname === '/notifications' ? 'menubar-btn active' : 'menubar-btn'}>알림</button>
+          <button className={location.pathname === '/notifications' ? 'menubar-btn active' : 'menubar-btn'} onClick={() => navigate('/notifications')}>알림</button>
           <button className={location.pathname === '/mypage' ? 'menubar-btn active' : 'menubar-btn'} onClick={() => navigate('/mypage')}>프로필</button>
         <button className="feed-logout">로그아웃</button>
         </div>
@@ -37,6 +38,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/write" element={<Write />} />
+          <Route path="/notifications" element={<Notification />} />
           <Route path="/search" element={<Search />} />
           <Route path="/mypage" element={<MyPage />} />
         </Routes>

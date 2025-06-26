@@ -1,6 +1,7 @@
 .mypage-card {
-  max-width: 420px;
+  max-width: 1500px;
   margin: 60px auto 0 auto;
+  margin-bottom: ;
   padding: 2.5rem 2rem 2rem 2rem;
   display: flex;
   flex-direction: column;

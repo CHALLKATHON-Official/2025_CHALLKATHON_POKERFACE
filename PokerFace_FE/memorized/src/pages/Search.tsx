@@ -5,7 +5,6 @@ export default function Search() {
     <div className="card-glass search-card fade-in">
       <div className="search-title">
         <span>기억 검색</span>
-        <span className="search-icon">🔍✨</span>
       </div>
       <form className="search-form">
         <input className="search-input" type="text" placeholder="키워드로 기억을 찾아보세요" />
@@ -14,8 +13,10 @@ export default function Search() {
       <div className="search-section">
         <div className="search-section-title">최근 검색어</div>
         <ul className="search-history-list">
-          <li>앨리스</li>
-          <li>시간</li>
+          <li>앨리스 
+    <button className='delete-btn'>X</button></li>
+          <li>시간 
+    <button className='delete-btn'>X</button></li>
         </ul>
       </div>
       <div className="search-section">
