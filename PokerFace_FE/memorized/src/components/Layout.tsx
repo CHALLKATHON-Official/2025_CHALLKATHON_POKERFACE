@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { FiHome, FiSearch, FiPlusSquare, FiBell, FiUser, FiX } from 'react-icons/fi'
@@ -24,27 +24,27 @@ function SideBar({ onSearch, onNotifications }: { onSearch: () => void, onNotifi
   const { user } = useAuth()
   
   return (
-    <aside className="sidebar">
+    <aside className="sidebar card-glass">
       <button 
-        className={location.pathname === '/' ? 'sidebar-btn active' : 'sidebar-btn'} 
+        className={location.pathname === '/' ? 'sidebar-btn btn-main active' : 'sidebar-btn btn-main'} 
         onClick={() => navigate('/')}
       > 
         <FiHome size={24} /> 
       </button>
-      <button className={'sidebar-btn'} onClick={onSearch}> 
+      <button className={'sidebar-btn btn-main'} onClick={onSearch}> 
         <FiSearch size={24} /> 
       </button>
       <button 
-        className={location.pathname === '/write' ? 'sidebar-btn active' : 'sidebar-btn'} 
+        className={location.pathname === '/write' ? 'sidebar-btn btn-main active' : 'sidebar-btn btn-main'} 
         onClick={() => navigate('/write')}
       > 
         <FiPlusSquare size={24} /> 
       </button>
-      <button className={'sidebar-btn'} onClick={onNotifications}> 
+      <button className={'sidebar-btn btn-main'} onClick={onNotifications}> 
         <FiBell size={24} /> 
       </button>
       <button 
-        className={location.pathname === '/mypage' ? 'sidebar-btn active' : 'sidebar-btn'} 
+        className={location.pathname === '/mypage' ? 'sidebar-btn btn-main active' : 'sidebar-btn btn-main'} 
         onClick={() => navigate('/mypage')}
       > 
         <FiUser size={24} /> 
@@ -63,28 +63,31 @@ function MainLayout({ children, hideRight = false }: { children: React.ReactNode
       <SideBar onSearch={() => setSearchOpen(true)} onNotifications={() => setNotiOpen(true)} />
       <main className="main-center">{children}</main>
       {!hideRight && (
-        <aside className="main-right">
-          <div className="right-profile-card">
+        <aside className="main-right card-glass">
+          <div className="right-profile-card card-glass">
             <div className="right-profile-avatar">
               <img 
-                src={user?.profileImageUrl || `https://i.pravatar.cc/40?img=${user?.id || 1}`} 
+                src={`https://i.pravatar.cc/40?img=1`}
                 alt={user?.username || '사용자'}
               />
+              <button className="profile-img-edit-btn btn-main" style={{marginTop: 6, fontSize: 12, background: 'none', border: 'none', color: '#888', cursor: 'pointer'}}>
+                이미지 변경
+              </button>
             </div>
             <div className="right-profile-info">
-              <div className="right-profile-nick">{user?.username || '앨리스'}</div>
-              <div className="right-profile-id">{user?.email || 'alice_01'}</div>
+              <div className="right-profile-nick badge-pastel">{user?.username || '사용자'}</div>
+              <div className="right-profile-id">{user?.email || ''}</div>
             </div>
           </div>
           <div className="right-suggest-title">회원님을 위한 추천</div>
           <div className="right-suggest-list">
-            <div className="right-suggest-item">
-              <span>jamjamjam_1122</span>
-              <button>팔로우</button>
+            <div className="right-suggest-item card-glass">
+              <span className="badge-pastel">jamjamjam_1122</span>
+              <button className="btn-main">팔로우</button>
             </div>
-            <div className="right-suggest-item">
-              <span>wacko.y</span>
-              <button>팔로우</button>
+            <div className="right-suggest-item card-glass">
+              <span className="badge-pastel">wacko.y</span>
+              <button className="btn-main">팔로우</button>
             </div>
           </div>
         </aside>
@@ -101,7 +104,30 @@ function MainLayout({ children, hideRight = false }: { children: React.ReactNode
 
 export default function Layout() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { isAuthenticated, isLoading } = useAuth()
   const hideRight = location.pathname === '/write' || location.pathname === '/mypage'
+  
+  // 인증 상태 체크
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/main')
+    }
+  }, [isAuthenticated, isLoading, navigate])
+  
+  // 로딩 중이거나 인증되지 않은 경우 로딩 표시
+  if (isLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>로딩 중...</p>
+      </div>
+    )
+  }
+  
+  if (!isAuthenticated) {
+    return null // 리다이렉트 중
+  }
   
   return (
     <MainLayout hideRight={hideRight}>

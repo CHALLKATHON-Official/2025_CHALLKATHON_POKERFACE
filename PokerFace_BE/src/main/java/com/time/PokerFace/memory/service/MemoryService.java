@@ -22,6 +22,8 @@ import com.time.PokerFace.notification.service.NotificationService;
 import com.time.PokerFace.notification.entity.Notification;
 import com.time.PokerFace.coin.service.CoinService;
 import com.time.PokerFace.myroom.dto.MyRoomResponse;
+import com.time.PokerFace.auth.entity.User;
+import com.time.PokerFace.auth.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,15 +47,17 @@ public class MemoryService {
     private final CommentService commentService;
     private final NotificationService notificationService;
     private final CoinService coinService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public MemoryService(MemoryRepository memoryRepository, MemoryLikeRepository memoryLikeRepository, MemoryBookmarkRepository memoryBookmarkRepository, CommentService commentService, NotificationService notificationService, CoinService coinService) {
+    public MemoryService(MemoryRepository memoryRepository, MemoryLikeRepository memoryLikeRepository, MemoryBookmarkRepository memoryBookmarkRepository, CommentService commentService, NotificationService notificationService, CoinService coinService, UserRepository userRepository) {
         this.memoryRepository = memoryRepository;
         this.memoryLikeRepository = memoryLikeRepository;
         this.memoryBookmarkRepository = memoryBookmarkRepository;
         this.commentService = commentService;
         this.notificationService = notificationService;
         this.coinService = coinService;
+        this.userRepository = userRepository;
     }
 
     public MemoryResponse uploadMemory(Long userId, MemoryUploadRequest request) throws IOException {
@@ -64,7 +68,10 @@ public class MemoryService {
             imageUrl = "temp-image-url";
         }
 
-        Emotion emotion = Emotion.valueOf(request.getEmotion().toUpperCase());
+        Emotion emotion = null;
+        if (request.getEmotion() != null && !request.getEmotion().isEmpty()) {
+            emotion = Emotion.valueOf(request.getEmotion().toUpperCase());
+        }
 
         Memory memory = new Memory();
         memory.setUserId(userId);
@@ -80,7 +87,7 @@ public class MemoryService {
         MemoryResponse response = new MemoryResponse();
         response.setId(saved.getId());
         response.setContent(saved.getContent());
-        response.setEmotion(saved.getEmotion().name());
+        response.setEmotion(saved.getEmotion() != null ? saved.getEmotion().name() : null);
         response.setImageUrl(saved.getImageUrl());
         response.setCreatedAt(saved.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
         return response;
@@ -89,7 +96,9 @@ public class MemoryService {
     public MemoryListResponse getMemories(String type, Long userId, int page, int size, List<Long> followingUserIds) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Memory> memoryPage;
-        if ("following".equalsIgnoreCase(type) && followingUserIds != null && !followingUserIds.isEmpty()) {
+        if ("user".equalsIgnoreCase(type)) {
+            memoryPage = memoryRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+        } else if ("following".equalsIgnoreCase(type) && followingUserIds != null && !followingUserIds.isEmpty()) {
             memoryPage = memoryRepository.findByUserIdInOrderByCreatedAtDesc(followingUserIds, pageable);
         } else {
             memoryPage = memoryRepository.findAllByOrderByCreatedAtDesc(pageable);
@@ -130,6 +139,13 @@ public class MemoryService {
         response.setUserId(m.getUserId());
         response.setLikes(getLikeCount(m.getId()));
         response.setComments(commentService.getComments(m.getId()));
+        // 유저 정보 추가
+        if (m.getUserId() != null) {
+            userRepository.findById(m.getUserId()).ifPresent(user -> {
+                response.setUsername(user.getUsername());
+                response.setProfileImageUrl(user.getProfileImageUrl());
+            });
+        }
         return response;
     }
 

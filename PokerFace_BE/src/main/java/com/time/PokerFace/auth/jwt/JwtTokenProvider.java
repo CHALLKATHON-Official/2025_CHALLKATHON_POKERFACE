@@ -2,16 +2,28 @@ package com.time.PokerFace.auth.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
+import jakarta.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
+import java.util.Base64;
 
 @Component
 public class JwtTokenProvider {
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private Key key;
+
+    @Value("${jwt.secret}")
+    private String secret;
+
     private final long accessTokenValidity = 1000 * 60 * 30; // 30분
     private final long refreshTokenValidity = 1000 * 60 * 60 * 24 * 7; // 7일
+
+    @PostConstruct
+    public void init() {
+        byte[] keyBytes = Base64.getEncoder().encode(secret.getBytes());
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+    }
 
     public String createAccessToken(Long userId) {
         return Jwts.builder()

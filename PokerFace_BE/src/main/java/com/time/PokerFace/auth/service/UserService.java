@@ -42,8 +42,8 @@ public class UserService {
 
         return user;
     }
-    public UserInfoResponse getMyInfo(String username) {
-        User user = userRepository.findByUsername(username)
+    public UserInfoResponse getMyInfo(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("유저 없음"));
         return new UserInfoResponse(user);
     }

@@ -21,7 +21,8 @@ public class AuthUserController {
         if (userDetails == null) {
             return ResponseEntity.status(401).body("로그인이 필요합니다.");
         }
-        return ResponseEntity.ok(userService.getMyInfo(userDetails.getUsername()));
+        Long userId = Long.parseLong(userDetails.getUsername());
+        return ResponseEntity.ok(userService.getMyInfo(userId));
     }
 
     @PatchMapping("/password")

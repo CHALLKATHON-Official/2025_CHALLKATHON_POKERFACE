@@ -98,16 +98,19 @@
 }
 
 .memory-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 20px;
 }
 
 .memory-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
 }
 
 .memory-header {
@@ -239,4 +242,87 @@
 
 .feed-error button:hover {
   background: var(--color-accent2);
+}
+
+.memory-menu {
+  position: relative;
+}
+
+.memory-menu-btn {
+  background: none;
+  border: none;
+  color: var(--color-accent1);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.memory-menu-btn:hover {
+  background: rgba(184, 182, 255, 0.1);
+  color: var(--color-accent2);
+}
+
+.memory-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 8px 0;
+  min-width: 120px;
+  z-index: 100;
+}
+
+.memory-menu-dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  color: var(--color-accent2);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.memory-menu-dropdown button:hover {
+  background: rgba(184, 182, 255, 0.1);
+  color: var(--color-main);
+}
+
+.memory-emotion {
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: rgba(184, 182, 255, 0.1);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--color-accent2);
+  display: inline-block;
+}
+
+.memory-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.memory-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.loading-indicator {
+  text-align: center;
+  padding: 20px;
+  color: var(--color-accent1);
+  font-size: 0.9rem;
 } 

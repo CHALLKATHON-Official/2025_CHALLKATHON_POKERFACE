@@ -26,18 +26,23 @@
   gap: 0.5rem;
 }
 .search-input {
-  flex: 1;
-  padding: 0.7rem 1rem;
-  border-radius: 0.8rem;
-  border: 1px solid var(--color-main-purple);
+  width: 100%;
+  padding: 15px 20px;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  font-size: 1rem;
   background: #fff;
-  font-size: 1.05rem;
-  outline: none;
-  transition: border 0.2s;
+  color: var(--color-accent2);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 .search-input:focus {
-  border: 1.5px solid var(--color-main-blue);
-  background: #f6f5f2;
+  outline: none;
+  border-color: var(--color-main);
+  box-shadow: 0 0 0 3px rgba(184, 182, 255, 0.1);
+}
+.search-input::placeholder {
+  color: var(--color-accent1);
 }
 .search-btn {
   background: linear-gradient(90deg, var(--color-main-purple), var(--color-main-pink));
@@ -79,4 +84,243 @@
   padding: 0.4rem 1rem;
   font-size: 0.98rem;
   box-shadow: 0 1px 4px #b8b6ff11;
+}
+.search-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.search-user-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(248, 249, 250, 0.8);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  margin-bottom: 8px;
+}
+.search-user-item:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
+}
+.search-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.search-header h1 {
+  font-family: var(--font-title);
+  font-size: 2.2rem;
+  color: var(--color-accent2);
+  margin: 0 0 8px 0;
+  font-weight: 700;
+}
+.search-header p {
+  color: var(--color-accent1);
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 400;
+}
+.search-input-group {
+  margin-bottom: 24px;
+}
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-icon {
+  position: absolute;
+  left: 16px;
+  color: var(--color-accent1);
+  z-index: 1;
+}
+.search-clear-btn {
+  position: absolute;
+  right: 16px;
+  background: none;
+  border: none;
+  color: var(--color-accent1);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+.search-clear-btn:hover {
+  background: rgba(184, 182, 255, 0.1);
+  color: var(--color-accent2);
+}
+.search-input {
+  width: 100%;
+  padding: 15px 20px 15px 48px;
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  font-size: 1rem;
+  background: #fff;
+  color: var(--color-accent2);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+.search-input:focus {
+  outline: none;
+  border-color: var(--color-main);
+  box-shadow: 0 0 0 3px rgba(184, 182, 255, 0.1);
+}
+.search-input::placeholder {
+  color: var(--color-accent1);
+}
+.search-results h3,
+.search-suggestions h3,
+.search-history h3 {
+  margin: 0 0 16px 0;
+  color: var(--color-accent2);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.search-user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.search-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.search-user-name {
+  font-weight: 600;
+  color: var(--color-accent2);
+  font-size: 1rem;
+}
+.search-user-email {
+  color: var(--color-accent1);
+  font-size: 0.9rem;
+}
+.search-suggestions {
+  margin-bottom: 24px;
+}
+.search-suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(248, 249, 250, 0.8);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--color-accent2);
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+.search-suggestion-item:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
+}
+.search-history {
+  margin-bottom: 24px;
+}
+.search-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.search-history-clear {
+  background: none;
+  border: none;
+  color: var(--color-main);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+.search-history-clear:hover {
+  color: var(--color-accent2);
+  text-decoration: underline;
+}
+.search-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(248, 249, 250, 0.8);
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+.search-history-item:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
+}
+.search-history-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  color: var(--color-accent2);
+  cursor: pointer;
+  font-size: 0.95rem;
+  flex: 1;
+  text-align: left;
+}
+.search-history-delete {
+  background: none;
+  border: none;
+  color: var(--color-accent1);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+.search-history-delete:hover {
+  background: rgba(184, 182, 255, 0.1);
+  color: var(--color-accent2);
+}
+.search-loading {
+  text-align: center;
+  padding: 20px;
+  color: var(--color-accent1);
+  font-size: 0.9rem;
+}
+.search-no-results {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--color-accent1);
+}
+.search-no-results svg {
+  margin-bottom: 16px;
+  color: var(--color-accent1);
+}
+.search-no-results p {
+  margin: 8px 0;
+  font-size: 0.95rem;
+}
+.error-message {
+  background: #fee;
+  color: #e53e3e;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  border: 1px solid #fed7d7;
+  text-align: center;
+  margin-bottom: 20px;
 } 

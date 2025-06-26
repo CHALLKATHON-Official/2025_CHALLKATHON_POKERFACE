@@ -67,7 +67,7 @@ export default function Signup() {
 
   return (
     <div className="signup-container">
-      <div className="signup-card">
+      <div className="signup-card card-glass">
         <div className="signup-header">
           <h1>Memorized</h1>
           <p>새로운 계정 만들기</p>
@@ -83,6 +83,7 @@ export default function Signup() {
               onChange={handleChange}
               disabled={isLoading}
               required
+              className="input-glass"
             />
           </div>
           
@@ -95,6 +96,7 @@ export default function Signup() {
               onChange={handleChange}
               disabled={isLoading}
               required
+              className="input-glass"
             />
           </div>
           
@@ -107,6 +109,7 @@ export default function Signup() {
               onChange={handleChange}
               disabled={isLoading}
               required
+              className="input-glass"
             />
           </div>
 
@@ -118,6 +121,7 @@ export default function Signup() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               disabled={isLoading}
               required
+              className="input-glass"
             />
           </div>
 
@@ -129,7 +133,7 @@ export default function Signup() {
           
           <button 
             type="submit" 
-            className="signup-btn"
+            className="signup-btn btn-main"
             disabled={isLoading}
           >
             {isLoading ? '가입 중...' : '회원가입'}
@@ -137,7 +141,7 @@ export default function Signup() {
         </form>
         
         <div className="signup-footer">
-          <p>이미 계정이 있으신가요? <span onClick={() => navigate('/login')}>로그인</span></p>
+          <p>이미 계정이 있으신가요? <span onClick={() => navigate('/login')} className="badge-pastel">로그인</span></p>
         </div>
       </div>
     </div>
