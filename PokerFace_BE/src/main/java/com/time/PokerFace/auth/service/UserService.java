@@ -14,7 +14,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public void signup(SignupRequest dto) {
+    public User signup(SignupRequest dto) {
         if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
             throw new IllegalArgumentException("이미 존재하는 사용자명입니다.");
         }
@@ -29,7 +29,7 @@ public class UserService {
                 .provider("local")
                 .build();
 
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     public User login(LoginRequest dto) {

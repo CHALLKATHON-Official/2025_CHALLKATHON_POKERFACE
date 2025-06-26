@@ -1,29 +1,104 @@
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { userAPI } from '../api/user'
+import type { UserSearchResponse } from '../api/user'
 import './Search.css'
 
 export default function Search() {
+  const navigate = useNavigate()
+  const [query, setQuery] = useState('')
+  const [users, setUsers] = useState<UserSearchResponse[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSearch = async (searchQuery: string) => {
+    if (!searchQuery.trim()) {
+      setUsers([])
+      return
+    }
+
+    setIsLoading(true)
+    setError('')
+
+    try {
+      const response = await userAPI.searchUsers(searchQuery.trim())
+      if (response.success) {
+        setUsers(response.data)
+      } else {
+        setError('검색에 실패했습니다.')
+      }
+    } catch (err: any) {
+      console.error('Search error:', err)
+      setError('검색 중 오류가 발생했습니다.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setQuery(value)
+    
+    // 디바운스 처리
+    const timeoutId = setTimeout(() => {
+      handleSearch(value)
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }
+
+  const handleUserClick = (userId: number) => {
+    navigate(`/profile/${userId}`)
+  }
+
   return (
-    <div className="card-glass search-card fade-in">
-      <div className="search-title">
-        <span>기억 검색</span>
-        <span className="search-icon">🔍✨</span>
+    <div className="search-container">
+      <div className="search-header">
+        <h2>사용자 검색</h2>
       </div>
-      <form className="search-form">
-        <input className="search-input" type="text" placeholder="키워드로 기억을 찾아보세요" />
-        <button className="search-btn" type="submit">검색</button>
-      </form>
-      <div className="search-section">
-        <div className="search-section-title">최근 검색어</div>
-        <ul className="search-history-list">
-          <li>앨리스</li>
-          <li>시간</li>
-        </ul>
+      
+      <div className="search-input-container">
+        <input
+          type="text"
+          placeholder="사용자명 또는 이메일로 검색..."
+          value={query}
+          onChange={handleInputChange}
+          className="search-input"
+        />
       </div>
-      <div className="search-section">
-        <div className="search-section-title">검색 결과</div>
-        <ul className="search-result-list">
-          <li>"앨리스와의 만남"</li>
-          <li>"이상한 나라의 시계탑"</li>
-        </ul>
+
+      {error && (
+        <div className="search-error">
+          {error}
+        </div>
+      )}
+
+      <div className="search-results">
+        {isLoading ? (
+          <div className="search-loading">검색 중...</div>
+        ) : users.length > 0 ? (
+          users.map((user) => (
+            <div 
+              key={user.id} 
+              className="search-user-item"
+              onClick={() => handleUserClick(user.id)}
+            >
+              <img 
+                src={user.profileImageUrl || `https://i.pravatar.cc/40?img=${user.id}`} 
+                alt={user.username}
+                className="search-user-avatar"
+              />
+              <div className="search-user-info">
+                <div className="search-username">{user.username}</div>
+                <div className="search-email">{user.email}</div>
+              </div>
+            </div>
+          ))
+        ) : query.trim() ? (
+          <div className="search-no-results">
+            검색 결과가 없습니다.
+          </div>
+        ) : null}
       </div>
     </div>
   )

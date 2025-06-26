@@ -1,20 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&family=Quicksand:wght@400;600&display=swap');
 
 :root {
-  --color-main-purple: #b8b6ff;
-  --color-main-pink: #ffd6ec;
-  --color-main-blue: #b6e0fe;
-  --color-midnight: #232946;
-  --color-charcoal: #22223b;
-  --color-beige: #f6f5f2;
+  --color-bg-main: #fff;
+  --color-bg-card: #fff;
+  --color-bg-card-alt: #f6f5f2;
+  --color-border: #e3e6ee;
+  --color-shadow: 0 4px 32px 0 rgba(80, 80, 120, 0.10);
+  --color-main: #b8b6ff;
+  --color-accent: #ffe066;
+  --color-accent2: #232946;
+  --color-text-main: #232946;
+  --color-text-sub: #b8b6ff;
+  --color-text-muted: #a0a0b0;
   --color-gold: #ffe066;
-  --color-cream: #fffbe6;
   --color-white: #fff;
   --color-glass-bg: rgba(255,255,255,0.7);
   --color-glass-blur: 16px;
-  --color-border: #e3e6ee;
-  --color-shadow: 0 4px 32px 0 rgba(80, 80, 120, 0.10);
-  --font-main: 'Pretendard', 'Poppins', 'Quicksand', 'Noto Sans', Arial, sans-serif;
+  --font-main: 'Pretendard', 'Poppins', 'Noto Sans', Arial, sans-serif;
   --font-title: 'Pacifico', 'Dancing Script', 'Pretendard', cursive, sans-serif;
 }
 
@@ -22,9 +24,9 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: var(--color-white);
+  background: var(--color-bg-main);
   font-family: var(--font-main);
-  color: var(--color-charcoal);
+  color: var(--color-text-main);
   letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -35,12 +37,12 @@ html, body {
 }
 
 a {
-  color: var(--color-main-purple);
+  color: var(--color-main);
   text-decoration: none;
   transition: color 0.2s;
 }
 a:hover {
-  color: var(--color-main-blue);
+  color: var(--color-gold);
 }
 
 .card-glass {

@@ -2,39 +2,48 @@
   "hash": "dfc08403",
   "configHash": "bc90f74e",
   "lockfileHash": "d4d8ce6c",
-  "browserHash": "7645f340",
+  "browserHash": "c85895ec",
   "optimized": {
     "react/jsx-dev-runtime": {
       "src": "../../node_modules/react/jsx-dev-runtime.js",
       "file": "react_jsx-dev-runtime.js",
-      "fileHash": "6cf89f2c",
+      "fileHash": "1e8cf893",
       "needsInterop": true
     },
     "react": {
       "src": "../../node_modules/react/index.js",
       "file": "react.js",
-      "fileHash": "edbd4307",
+      "fileHash": "47c8fa44",
       "needsInterop": true
     },
     "react-dom/client": {
       "src": "../../node_modules/react-dom/client.js",
       "file": "react-dom_client.js",
-      "fileHash": "c3f7467f",
+      "fileHash": "dd9be75e",
       "needsInterop": true
     },
     "react-router-dom": {
       "src": "../../node_modules/react-router-dom/dist/index.mjs",
       "file": "react-router-dom.js",
-      "fileHash": "b380bc6d",
+      "fileHash": "c496ef0a",
+      "needsInterop": false
+    },
+    "react-icons/fi": {
+      "src": "../../../../node_modules/react-icons/fi/index.mjs",
+      "file": "react-icons_fi.js",
+      "fileHash": "1f6e4189",
       "needsInterop": false
     }
   },
   "chunks": {
-    "chunk-QOVZGY7A": {
-      "file": "chunk-QOVZGY7A.js"
+    "chunk-XQIPT53K": {
+      "file": "chunk-XQIPT53K.js"
     },
-    "chunk-5WQJO2FO": {
-      "file": "chunk-5WQJO2FO.js"
+    "chunk-KS2M7ZJI": {
+      "file": "chunk-KS2M7ZJI.js"
+    },
+    "chunk-5WRI5ZAA": {
+      "file": "chunk-5WRI5ZAA.js"
     }
   }
 }

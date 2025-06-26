@@ -1,25 +1,31 @@
 import { useState } from 'react'
-import Feed from './Feed'
 import MyRoom from './MyRoom'
 import Library from './Library'
-import Shop from './Shop'
 import './MyPage.css'
 
 const TABS = [
-  { key: 'feed', label: '내 피드' },
   { key: 'myroom', label: '미니홈피' },
   { key: 'library', label: '기억의 서고' },
-  { key: 'shop', label: '상점' },
 ]
 
 export default function MyPage() {
-  const [tab, setTab] = useState('feed')
+  const [tab, setTab] = useState('myroom')
   return (
-    <div className="card-glass mypage-card fade-in">
-      <div className="mypage-profile">
-        <img className="mypage-avatar" src="https://i.pravatar.cc/100?img=3" alt="프로필" />
-        <div className="mypage-nickname">앨리스</div>
-        <span className="mypage-icon">🌙✨</span>
+    <div className="mypage-root">
+      <div className="mypage-profile-top">
+        <img className="mypage-avatar" src="https://i.pravatar.cc/120?img=3" alt="프로필" />
+        <div className="mypage-profile-info">
+          <div className="mypage-nickname-row">
+            <span className="mypage-nickname">앨리스</span>
+            <button className="mypage-edit-btn">프로필 편집</button>
+          </div>
+          <div className="mypage-stats">
+            <span><b>12</b> 게시물</span>
+            <span><b>390</b> 팔로워</span>
+            <span><b>439</b> 팔로잉</span>
+          </div>
+          <div className="mypage-bio">시간을 수집하는 사람<br /><a href="https://alice.com" target="_blank" rel="noreferrer">alice.com</a></div>
+        </div>
       </div>
       <div className="mypage-tabs">
         {TABS.map(t => (
@@ -33,10 +39,8 @@ export default function MyPage() {
         ))}
       </div>
       <div className="mypage-tab-content">
-        {tab === 'feed' && <Feed />}
         {tab === 'myroom' && <MyRoom />}
         {tab === 'library' && <Library />}
-        {tab === 'shop' && <Shop />}
       </div>
     </div>
   )
