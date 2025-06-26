@@ -2,10 +2,16 @@
   width: 100%;
   position: relative;
   min-height: 600px;
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
 }
 
 .myroom-background {
@@ -86,7 +92,7 @@
   background: var(--color-main);
   color: white;
   border: none;
-  border-radius: 20px;
+  border-radius: 12px;
   padding: 8px 20px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -97,6 +103,7 @@
 .myroom-friend-btn:hover {
   background: var(--color-accent2);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(184, 182, 255, 0.3);
 }
 
 /* 메뉴 섹션 */
@@ -106,8 +113,11 @@
   gap: 15px;
   margin-bottom: 30px;
   padding: 20px;
-  background: #f8f9fa;
-  border-radius: 12px;
+  background: rgba(248, 249, 250, 0.8);
+  backdrop-filter: blur(5px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(31, 38, 135, 0.1);
 }
 
 .myroom-menu-item {
@@ -322,4 +332,534 @@
 }
 .myroom-btn:hover {
   background: linear-gradient(90deg, var(--color-main-pink), var(--color-main-purple));
+}
+
+/* 로딩 및 에러 상태 */
+.myroom-loading,
+.myroom-error {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--color-accent);
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.myroom-error h2 {
+  color: var(--color-error);
+  margin-bottom: 1rem;
+}
+
+/* 프로필 헤더 */
+.myroom-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.profile-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 25px rgba(184, 182, 255, 0.3);
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-edit-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-username {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--color-main), var(--color-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+.profile-bio {
+  font-size: 1.1rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.profile-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.profile-join-date,
+.profile-location {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.friend-btn,
+.message-btn {
+  padding: 0.8rem 1.5rem;
+  font-size: 0.9rem;
+}
+
+.friend-btn.unfriend {
+  background: var(--color-error);
+}
+
+/* 통계 대시보드 */
+.myroom-stats {
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.stats-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--color-glass-bg);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-icon {
+  font-size: 2rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--color-main), var(--color-accent));
+  border-radius: 50%;
+  color: white;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.2rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+/* 메뉴 섹션 */
+.myroom-menu {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: var(--color-glass-bg);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.menu-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.menu-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.menu-item span {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.menu-count {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.8rem;
+}
+
+/* 최근 메모리 */
+.myroom-recent-memories {
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 1.5rem;
+}
+
+.memories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.memory-preview {
+  background: var(--color-glass-bg);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.memory-content p {
+  color: var(--color-text);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.memory-image {
+  margin-bottom: 1rem;
+}
+
+.memory-image img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: cover;
+  border-radius: 0.8rem;
+}
+
+.memory-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.memory-likes {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.view-all-btn {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+}
+
+/* 방명록 섹션 */
+.myroom-guestbook {
+  padding: 2rem;
+}
+
+.guestbook-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.write-guestbook-btn {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+}
+
+.guestbook-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.guestbook-entry {
+  background: var(--color-glass-bg);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.entry-author {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.entry-date {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.entry-delete-btn {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-error);
+  color: white;
+  border: none;
+  font-size: 0.8rem;
+}
+
+.entry-content {
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.guestbook-empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--color-text-secondary);
+}
+
+.write-first-guestbook-btn {
+  margin-top: 1rem;
+}
+
+/* 모달 스타일 */
+.guestbook-modal,
+.profile-edit-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 1000;
+  padding: 0;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.modal-close-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-error);
+  color: white;
+  border: none;
+  font-size: 1.2rem;
+}
+
+/* 방명록 폼 */
+.guestbook-form {
+  padding: 2rem;
+}
+
+.guestbook-textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  margin-bottom: 1rem;
+}
+
+.guestbook-char-count {
+  text-align: right;
+  margin-bottom: 1.5rem;
+}
+
+.guestbook-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.guestbook-cancel-btn,
+.guestbook-submit-btn {
+  padding: 0.8rem 1.5rem;
+}
+
+/* 프로필 편집 폼 */
+.profile-edit-form {
+  padding: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.profile-bio-input {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  margin-bottom: 0.5rem;
+}
+
+.char-count {
+  text-align: right;
+  font-size: 0.9rem;
+}
+
+.theme-select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+}
+
+.profile-edit-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.profile-cancel-btn,
+.profile-save-btn {
+  padding: 0.8rem 1.5rem;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .myroom-container {
+    padding: 1rem;
+  }
+  
+  .myroom-profile-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .profile-username {
+    font-size: 2rem;
+  }
+  
+  .profile-meta {
+    justify-content: center;
+  }
+  
+  .profile-actions {
+    justify-content: center;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .myroom-menu {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .memories-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .guestbook-modal,
+  .profile-edit-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+  
+  .guestbook-actions,
+  .profile-edit-actions {
+    flex-direction: column;
+  }
 } 

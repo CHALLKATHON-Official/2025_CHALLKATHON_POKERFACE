@@ -50,6 +50,8 @@ export interface MemoryDetailResponse {
   userId: number
   likes: number
   comments: string[]
+  username?: string
+  profileImageUrl?: string
 }
 
 // 메모리 필터 요청 타입

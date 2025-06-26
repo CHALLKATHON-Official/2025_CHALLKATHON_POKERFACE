@@ -54,14 +54,14 @@ export default function Login() {
 
   return (
     <div className="login-container">
-      <div className="login-card">
+      <div className="login-card card-glass">
         <div className="login-header">
           <h1>Memorized</h1>
           <p>시간을 수집하는 공간</p>
         </div>
         
         {location.state?.message && (
-          <div className="login-message">
+          <div className="login-message badge-pastel">
             {location.state.message}
           </div>
         )}
@@ -76,6 +76,7 @@ export default function Login() {
               onChange={handleChange}
               disabled={isLoading}
               required
+              className="input-glass"
             />
           </div>
           
@@ -88,6 +89,7 @@ export default function Login() {
               onChange={handleChange}
               disabled={isLoading}
               required
+              className="input-glass"
             />
           </div>
 
@@ -99,7 +101,7 @@ export default function Login() {
           
           <button 
             type="submit" 
-            className="login-btn"
+            className="login-btn btn-main"
             disabled={isLoading}
           >
             {isLoading ? '로그인 중...' : '로그인'}
@@ -107,7 +109,7 @@ export default function Login() {
         </form>
         
         <div className="login-footer">
-          <p>계정이 없으신가요? <span onClick={() => navigate('/signup')}>회원가입</span></p>
+          <p>계정이 없으신가요? <span onClick={() => navigate('/signup')} className="badge-pastel">회원가입</span></p>
         </div>
       </div>
     </div>

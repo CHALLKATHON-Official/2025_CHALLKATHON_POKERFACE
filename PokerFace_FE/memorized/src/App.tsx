@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Layout from './components/Layout'
+import Main from './pages/Main'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import Feed from './pages/Feed'
@@ -10,6 +11,7 @@ import MyPage from './pages/MyPage'
 import Shop from './pages/Shop'
 import Library from './pages/Library'
 import Notification from './pages/Notification'
+import MemoryDetail from './pages/MemoryDetail'
 import './App.css'
 
 function App() {
@@ -18,6 +20,7 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
+            <Route path="/main" element={<Main />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/" element={<Layout />}>
@@ -28,8 +31,9 @@ function App() {
               <Route path="shop" element={<Shop />} />
               <Route path="library" element={<Library />} />
               <Route path="notification" element={<Notification />} />
+              <Route path="memory/:id" element={<MemoryDetail />} />
             </Route>
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<Navigate to="/main" replace />} />
           </Routes>
         </div>
       </Router>

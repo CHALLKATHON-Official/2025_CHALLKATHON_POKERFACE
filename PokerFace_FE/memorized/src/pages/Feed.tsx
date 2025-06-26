@@ -1,18 +1,24 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FiHeart, FiBookmark, FiMessageCircle, FiMoreHorizontal } from 'react-icons/fi'
+import { FiHeart, FiBookmark, FiMessageCircle, FiMoreHorizontal, FiTrash2, FiEdit } from 'react-icons/fi'
 import { memoryAPI } from '../api/memory'
 import type { Memory } from '../api/memory'
+import { useAuth } from '../contexts/AuthContext'
 import './Feed.css'
 
 export default function Feed() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const [memories, setMemories] = useState<Memory[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasNext, setHasNext] = useState(true)
   const [currentPage, setCurrentPage] = useState(0)
+  const [showMenuId, setShowMenuId] = useState<number | null>(null)
   const observerRef = useRef<IntersectionObserver>()
   const loadingRef = useRef<HTMLDivElement>(null)
+  const hasNextRef = useRef(hasNext)
+  const isLoadingRef = useRef(isLoading)
+  const currentPageRef = useRef(currentPage)
 
   const loadMemories = useCallback(async (page: number = 0) => {
     if (isLoading) return
@@ -41,166 +47,216 @@ export default function Feed() {
     // eslint-disable-next-line
   }, [])
 
+  useEffect(() => {
+    hasNextRef.current = hasNext
+    isLoadingRef.current = isLoading
+    currentPageRef.current = currentPage
+  }, [hasNext, isLoading, currentPage])
+
   // 무한 스크롤 설정
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasNext && !isLoading) {
-          loadMemories(currentPage + 1)
+        if (entries[0].isIntersecting && hasNextRef.current && !isLoadingRef.current) {
+          loadMemories(currentPageRef.current + 1)
         }
       },
       { threshold: 0.1 }
     )
-    
+    observerRef.current = observer
+
     if (loadingRef.current) {
       observer.observe(loadingRef.current)
     }
-    
-    observerRef.current = observer
-    
+
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect()
       }
     }
-  }, [hasNext, isLoading, currentPage, loadMemories])
+  }, [])
 
   // 좋아요 토글
-  const handleLikeToggle = async (memoryId: number, isLiked: boolean) => {
+  const handleLikeToggle = async (memoryId: number) => {
     try {
-      if (isLiked) {
+      const memory = memories.find(m => m.id === memoryId)
+      if (!memory) return
+
+      if (memory.isLiked) {
         await memoryAPI.removeLike(memoryId)
+        setMemories(prev => prev.map(m => 
+          m.id === memoryId 
+            ? { ...m, isLiked: false, likeCount: m.likeCount - 1 }
+            : m
+        ))
       } else {
         await memoryAPI.addLike(memoryId)
+        setMemories(prev => prev.map(m => 
+          m.id === memoryId 
+            ? { ...m, isLiked: true, likeCount: m.likeCount + 1 }
+            : m
+        ))
       }
-      
-      // 메모리 목록 업데이트
-      setMemories(prev => prev.map(memory => 
-        memory.id === memoryId 
-          ? { 
-              ...memory, 
-              isLiked: !isLiked,
-              likeCount: isLiked ? memory.likeCount - 1 : memory.likeCount + 1
-            }
-          : memory
-      ))
     } catch (error) {
-      console.error('Failed to toggle like:', error)
+      console.error('Like toggle error:', error)
     }
   }
 
   // 북마크 토글
-  const handleBookmarkToggle = async (memoryId: number, isBookmarked: boolean) => {
+  const handleBookmarkToggle = async (memoryId: number) => {
     try {
-      if (isBookmarked) {
+      const memory = memories.find(m => m.id === memoryId)
+      if (!memory) return
+
+      if (memory.isBookmarked) {
         await memoryAPI.removeBookmark(memoryId)
+        setMemories(prev => prev.map(m => 
+          m.id === memoryId 
+            ? { ...m, isBookmarked: false, bookmarkCount: m.bookmarkCount - 1 }
+            : m
+        ))
       } else {
         await memoryAPI.addBookmark(memoryId)
+        setMemories(prev => prev.map(m => 
+          m.id === memoryId 
+            ? { ...m, isBookmarked: true, bookmarkCount: m.bookmarkCount + 1 }
+            : m
+        ))
       }
-      
-      // 메모리 목록 업데이트
-      setMemories(prev => prev.map(memory => 
-        memory.id === memoryId 
-          ? { 
-              ...memory, 
-              isBookmarked: !isBookmarked,
-              bookmarkCount: isBookmarked ? memory.bookmarkCount - 1 : memory.bookmarkCount + 1
-            }
-          : memory
-      ))
     } catch (error) {
-      console.error('Failed to toggle bookmark:', error)
+      console.error('Bookmark toggle error:', error)
     }
+  }
+
+  // 메모리 삭제
+  const handleDeleteMemory = async (memoryId: number) => {
+    if (!window.confirm('정말로 이 메모리를 삭제하시겠습니까?')) return
+    
+    try {
+      await memoryAPI.deleteMemory(memoryId)
+      setMemories(prev => prev.filter(m => m.id !== memoryId))
+      setShowMenuId(null)
+    } catch (error) {
+      console.error('Delete memory error:', error)
+      alert('메모리 삭제에 실패했습니다.')
+    }
+  }
+
+  // 메모리 수정
+  const handleEditMemory = (memoryId: number) => {
+    navigate(`/edit/${memoryId}`)
+    setShowMenuId(null)
   }
 
   // 날짜 포맷팅
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
+    const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60)
     
     if (diffInHours < 1) {
       return '방금 전'
     } else if (diffInHours < 24) {
-      return `${diffInHours}시간 전`
+      return `${Math.floor(diffInHours)}시간 전`
+    } else if (diffInHours < 24 * 7) {
+      return `${Math.floor(diffInHours / 24)}일 전`
     } else {
-      const diffInDays = Math.floor(diffInHours / 24)
-      return `${diffInDays}일 전`
+      return date.toLocaleDateString('ko-KR')
     }
   }
 
+  // 프로필 아이콘 SVG
+  const ProfileIcon = () => (
+    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="20" r="20" fill="#e3e6ee"/>
+      <circle cx="20" cy="16" r="7" fill="#b8b6ff"/>
+      <ellipse cx="20" cy="30" rx="11" ry="7" fill="#b8b6ff"/>
+    </svg>
+  )
+
   return (
     <div className="feed-container">
-      <div className="feed-content">
-        {memories.map((memory) => (
-          <article key={memory.id} className="memory-card">
-            <div className="memory-header">
-              <div className="memory-user-info" onClick={() => navigate(`/profile/${memory.userId}`)}>
-                <img 
-                  src={memory.userProfileImage || `https://i.pravatar.cc/40?img=${memory.userId}`} 
-                  alt={memory.username}
-                  className="memory-user-avatar"
-                />
-                <div className="memory-user-details">
-                  <span className="memory-username">{memory.username}</span>
-                  <span className="memory-date">{formatDate(memory.createdAt)}</span>
-                </div>
+      {memories.map((memory) => (
+        <div key={memory.id} className="memory-card card-glass">
+          <div className="memory-header">
+            <div className="memory-user">
+              <div className="memory-avatar">
+                {memory.userProfileImage ? (
+                  <img src={memory.userProfileImage} alt={memory.username} />
+                ) : (
+                  <ProfileIcon />
+                )}
               </div>
-              <button className="memory-more-btn">
-                <FiMoreHorizontal size={20} />
-              </button>
+              <div className="memory-user-info">
+                <div className="memory-username">{memory.username}</div>
+                <div className="memory-date">{formatDate(memory.createdAt)}</div>
+              </div>
             </div>
             
-            <div className="memory-content">
-              <p className="memory-text">{memory.content}</p>
-              {memory.imageUrl && (
-                <div className="memory-image-container">
-                  <img 
-                    src={memory.imageUrl} 
-                    alt="Memory" 
-                    className="memory-image"
-                  />
-                </div>
-              )}
-            </div>
-            
-            <div className="memory-actions">
-              <div className="memory-action-left">
-                <button 
-                  className={`memory-action-btn ${memory.isLiked ? 'liked' : ''}`}
-                  onClick={() => handleLikeToggle(memory.id, memory.isLiked)}
-                >
-                  <FiHeart size={20} />
-                  <span>{memory.likeCount}</span>
+            {/* 메뉴 버튼 (본인 글인 경우에만) */}
+            {user && memory.userId === user.id && (
+              <div className="memory-menu">
+                <button className="memory-menu-btn btn-main" onClick={() => setShowMenuId(showMenuId === memory.id ? null : memory.id)}>
+                  <FiMoreHorizontal size={20} />
                 </button>
-                <button className="memory-action-btn">
-                  <FiMessageCircle size={20} />
-                  <span>0</span>
-                </button>
+                {showMenuId === memory.id && (
+                  <div className="memory-menu-dropdown card-glass">
+                    <button onClick={() => handleEditMemory(memory.id)}>
+                      <FiEdit size={16} /> 수정
+                    </button>
+                    <button onClick={() => handleDeleteMemory(memory.id)}>
+                      <FiTrash2 size={16} /> 삭제
+                    </button>
+                  </div>
+                )}
               </div>
-              <button 
-                className={`memory-action-btn ${memory.isBookmarked ? 'bookmarked' : ''}`}
-                onClick={() => handleBookmarkToggle(memory.id, memory.isBookmarked)}
-              >
-                <FiBookmark size={20} />
-                <span>{memory.bookmarkCount}</span>
-              </button>
-            </div>
-          </article>
-        ))}
-        
-        {hasNext && (
-          <div ref={loadingRef} className="loading-indicator">
-            {isLoading ? '로딩 중...' : ''}
+            )}
           </div>
-        )}
-        
-        {!hasNext && memories.length > 0 && (
-          <div className="end-message">
-            모든 메모리를 불러왔습니다.
+
+          <div className="memory-content">
+            <p>{memory.content}</p>
+            {memory.imageUrl && (
+              <div className="memory-image">
+                <img src={memory.imageUrl} alt="메모리 이미지" />
+              </div>
+            )}
+            {memory.emotion && (
+              <div className="memory-emotion badge-pastel">
+                감정: {memory.emotion}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+
+          <div className="memory-actions">
+            <button 
+              className={`memory-action-btn btn-main ${memory.isLiked ? 'liked' : ''}`}
+              onClick={() => handleLikeToggle(memory.id)}
+            >
+              <FiHeart size={18} />
+              <span>{memory.likeCount}</span>
+            </button>
+            
+            <button className="memory-action-btn btn-main">
+              <FiMessageCircle size={18} />
+              <span>댓글</span>
+            </button>
+            
+            <button 
+              className={`memory-action-btn btn-main ${memory.isBookmarked ? 'bookmarked' : ''}`}
+              onClick={() => handleBookmarkToggle(memory.id)}
+            >
+              <FiBookmark size={18} />
+              <span>{memory.bookmarkCount}</span>
+            </button>
+          </div>
+        </div>
+      ))}
+
+      {hasNext && (
+        <div ref={loadingRef} className="loading-indicator">
+          {isLoading ? '로딩 중...' : ''}
+        </div>
+      )}
     </div>
   )
 } 
