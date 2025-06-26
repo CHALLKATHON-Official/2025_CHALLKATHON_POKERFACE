@@ -19,7 +19,6 @@ export default function MyPage() {
       <div className="mypage-profile">
         <img className="mypage-avatar" src="https://i.pravatar.cc/100?img=3" alt="프로필" />
         <div className="mypage-nickname">앨리스</div>
-        <span className="mypage-icon">🌙✨</span>
       </div>
       <div className="mypage-tabs">
         {TABS.map(t => (

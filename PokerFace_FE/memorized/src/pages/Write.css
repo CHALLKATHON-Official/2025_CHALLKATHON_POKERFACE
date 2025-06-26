@@ -1,5 +1,5 @@
 .write-card {
-  max-width: 420px;
+  width: 1000px;
   margin: 60px auto 0 auto;
   padding: 2.5rem 2rem 2rem 2rem;
   display: flex;
@@ -46,7 +46,7 @@
   background: #fff;
   font-size: 1.05rem;
   outline: none;
-  resize: vertical;
+  resize: none;
   min-height: 120px;
   transition: border 0.2s;
 }
