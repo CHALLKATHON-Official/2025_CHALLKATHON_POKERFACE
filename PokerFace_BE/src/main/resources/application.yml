@@ -40,3 +40,6 @@ book:
   api:
     url: https://www.googleapis.com/books/v1/volumes
     key: ${GOOGLE_BOOKS_API_KEY:} # 환경변수로 설정하거나 직접 입력
+
+jwt:
+  secret: "memorized-2025-challkathon-super-secret-key-1234567890!@#%$^&*()_+"
