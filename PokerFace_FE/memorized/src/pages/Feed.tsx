@@ -181,8 +181,8 @@ export default function Feed() {
           <div className="memory-header">
             <div className="memory-user">
               <div className="memory-avatar">
-                {memory.userProfileImage ? (
-                  <img src={memory.userProfileImage} alt={memory.username} />
+                {memory.profileImageUrl ? (
+                  <img src={memory.profileImageUrl} alt={memory.username} />
                 ) : (
                   <ProfileIcon />
                 )}
