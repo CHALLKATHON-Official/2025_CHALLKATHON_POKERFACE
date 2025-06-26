@@ -1,0 +1,115 @@
+/* MemoryDetail.css - 기본 스타일 */
+
+.memory-detail-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f3f4f8 0%, #e3e6ee 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.memory-detail-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.12);
+  padding: 32px 28px;
+  max-width: 480px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.memory-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.memory-detail-back {
+  background: #f6f5f2;
+  color: #6c63ff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.18s;
+}
+.memory-detail-back:hover {
+  background: #e3e6ee;
+}
+
+.memory-detail-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.memory-detail-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #b8b6ff;
+  background: #e3e6ee;
+}
+.memory-detail-userinfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.memory-detail-username {
+  font-weight: 700;
+  color: #6c63ff;
+  font-size: 1.05rem;
+}
+.memory-detail-date {
+  color: #a3a1ff;
+  font-size: 0.92rem;
+}
+
+.memory-detail-image {
+  width: 100%;
+  max-height: 320px;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+.memory-detail-image img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.memory-detail-content {
+  font-size: 1.08rem;
+  color: #333;
+  line-height: 1.7;
+  margin-bottom: 8px;
+}
+
+.memory-detail-actions {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  margin-top: 8px;
+}
+.memory-detail-like, .memory-detail-comment {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  color: #888;
+}
+.memory-detail-like svg {
+  stroke: #e57373;
+}
+.memory-detail-comment svg {
+  stroke: #64b5f6;
+} 

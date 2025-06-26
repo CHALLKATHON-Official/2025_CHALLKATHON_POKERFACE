@@ -6,7 +6,7 @@ export interface Memory {
   id: number
   userId: number
   username: string
-  userProfileImage?: string
+  profileImageUrl?: string
   content: string
   emotion?: string
   imageUrl?: string

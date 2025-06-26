@@ -34,11 +34,29 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const initializeAuth = async () => {
       const token = localStorage.getItem('accessToken')
+      const refreshToken = localStorage.getItem('refreshToken')
       if (token) {
         try {
           const response = await authAPI.getCurrentUser()
           if (response.success) {
             setUser(response.data)
+          } else if (refreshToken) {
+            // accessToken 만료 시 refreshToken으로 갱신 시도
+            const refreshRes = await authAPI.refreshToken(refreshToken)
+            if (refreshRes.success) {
+              localStorage.setItem('accessToken', refreshRes.data.accessToken)
+              // 갱신된 토큰으로 다시 사용자 정보 요청
+              const userRes = await authAPI.getCurrentUser()
+              if (userRes.success) {
+                setUser(userRes.data)
+                setIsLoading(false)
+                return
+              }
+            }
+            // refreshToken도 만료/실패 시 로그아웃 처리
+            localStorage.removeItem('accessToken')
+            localStorage.removeItem('refreshToken')
+            localStorage.removeItem('user')
           } else {
             // 토큰이 유효하지 않으면 제거
             localStorage.removeItem('accessToken')
@@ -46,7 +64,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             localStorage.removeItem('user')
           }
         } catch (error) {
-          console.error('Auth initialization error:', error)
           localStorage.removeItem('accessToken')
           localStorage.removeItem('refreshToken')
           localStorage.removeItem('user')

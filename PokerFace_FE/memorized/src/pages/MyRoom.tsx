@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { FiEdit3, FiTrash2, FiHeart, FiMessageCircle, FiImage, FiMusic, FiBook, FiCalendar, FiMapPin, FiUsers, FiStar, FiTrendingUp } from 'react-icons/fi'
 import { useAuth } from '../contexts/AuthContext'
 import './MyRoom.css'
+import { authAPI } from '../api/auth'
+import { memoryAPI } from '../api/memory'
 
 interface User {
   id: number
@@ -76,6 +78,42 @@ export default function MyRoom() {
     theme: 'default'
   })
 
+  // 방명록 API 연동용 함수 (실제 API가 생기면 URL만 바꿔서 사용)
+  const getGuestbook = async (username: string) => {
+    // TODO: 실제 API 엔드포인트로 교체
+    const response = await fetch(`/api/guestbook?username=${username}`)
+    if (!response.ok) throw new Error('방명록 불러오기 실패')
+    return response.json()
+  }
+  const addGuestbookEntry = async (username: string, content: string) => {
+    // TODO: 실제 API 엔드포인트로 교체
+    const response = await fetch(`/api/guestbook?username=${username}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    })
+    if (!response.ok) throw new Error('방명록 작성 실패')
+    return response.json()
+  }
+  const deleteGuestbookEntry = async (entryId: number) => {
+    // TODO: 실제 API 엔드포인트로 교체
+    const response = await fetch(`/api/guestbook/${entryId}`, { method: 'DELETE' })
+    if (!response.ok) throw new Error('방명록 삭제 실패')
+    return response.json()
+  }
+  // 일촌(친구) API 연동용 함수 (실제 API가 생기면 URL만 바꿔서 사용)
+  const toggleFriend = async (targetUsername: string, add: boolean) => {
+    // TODO: 실제 API 엔드포인트로 교체
+    const url = add ? '/api/friends/add' : '/api/friends/remove'
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: targetUsername })
+    })
+    if (!response.ok) throw new Error('일촌 관리 실패')
+    return response.json()
+  }
+
   useEffect(() => {
     if (username) {
       loadRoomData()
@@ -85,131 +123,111 @@ export default function MyRoom() {
   const loadRoomData = async () => {
     try {
       setIsLoading(true)
-      
-      // 임시 사용자 데이터 (실제로는 API 호출)
-      const mockUser: User = {
-        id: 1,
-        username: username || 'user',
-        email: 'user@example.com',
-        bio: '시간을 수집하는 사람입니다.',
-        joinDate: '2024-01-01',
-        memoryCount: 42,
-        followerCount: 15,
-        followingCount: 12
-      }
-      setUser(mockUser)
-      
-      // 임시 방명록 데이터
-      const mockGuestbook: GuestbookEntry[] = [
-        {
-          id: 1,
-          content: '방문했어요! 정말 예쁜 미니홈피네요 😊',
-          author: '친구1',
-          authorId: 2,
-          createdAt: '2025-01-15T10:30:00Z',
-          isAuthor: false
-        },
-        {
-          id: 2,
-          content: '오늘도 좋은 하루 되세요~',
-          author: '친구2',
-          authorId: 3,
-          createdAt: '2025-01-14T15:20:00Z',
-          isAuthor: false
+      // 1. 유저 정보 불러오기
+      let userData = null
+      if (username) {
+        // userAPI.searchUsers로 유저 검색 (username이 id가 아닐 경우)
+        // 여기서는 authAPI.getCurrentUser로 대체 (본인 방일 때)
+        if (currentUser?.username === username) {
+          const res = await authAPI.getCurrentUser()
+          if (res.success) {
+            const apiUser = res.data
+            userData = {
+              id: apiUser.id,
+              username: apiUser.username,
+              email: apiUser.email,
+              profileImageUrl: apiUser.profileImageUrl,
+              bio: '', // 필요시 별도 API에서 받아오기
+              joinDate: '2024-01-01', // 필요시 별도 API에서 받아오기
+              memoryCount: 0,
+              followerCount: 0,
+              followingCount: 0
+            }
+          }
+        } else {
+          // TODO: userAPI.searchUsers로 username 검색 (API가 있으면)
+          // 임시로 mock
+          userData = {
+            id: 1,
+            username: username,
+            email: '',
+            bio: '',
+            joinDate: '2024-01-01',
+            memoryCount: 0,
+            followerCount: 0,
+            followingCount: 0
+          }
         }
-      ]
-      setGuestbook(mockGuestbook)
-      
-      // 임시 메모리 데이터
-      const mockMemories: Memory[] = [
-        {
-          id: 1,
-          content: '오늘은 정말 좋은 날씨였어요. 산책하면서 느낀 평화로움을 기록해봅니다.',
-          emotion: 'HAPPY',
-          createdAt: '2025-01-15T14:30:00Z',
-          likeCount: 5
-        },
-        {
-          id: 2,
-          content: '새로운 책을 읽기 시작했어요. 기대가 됩니다!',
-          emotion: 'EXCITED',
-          createdAt: '2025-01-14T20:15:00Z',
-          likeCount: 3
-        }
-      ]
-      setMemories(mockMemories)
-      
-      // 임시 통계 데이터
-      const mockStats: RoomStats = {
-        totalMemories: 42,
-        totalLikes: 156,
-        totalViews: 1234,
-        averageEmotion: '행복',
-        mostActiveDay: '토요일',
-        recentActivity: '2시간 전'
       }
-      setStats(mockStats)
-      
-      // 일촌 상태 (임시)
+      setUser(userData)
+      // 2. 메모리 불러오기 (유저별)
+      if (userData) {
+        const memoriesRes = await memoryAPI.getMemories('user', 0, 10)
+        if (memoriesRes.success) setMemories(memoriesRes.data.memories)
+      }
+      // 3. 방명록 불러오기 (fetch 구조)
+      if (username) {
+        try {
+          const guestbookRes = await getGuestbook(username)
+          setGuestbook(guestbookRes)
+        } catch {
+          setGuestbook([])
+        }
+      }
+      // 4. 통계 (임시)
+      setStats({
+        totalMemories: userData?.memoryCount || 0,
+        totalLikes: 0,
+        totalViews: 0,
+        averageEmotion: '-',
+        mostActiveDay: '-',
+        recentActivity: '-'
+      })
+      // 5. 일촌 상태 (임시 false)
       setIsFriend(false)
-      
     } catch (error) {
-      console.error('방 정보 로드 실패:', error)
       setError('방 정보를 불러오는데 실패했습니다.')
     } finally {
       setIsLoading(false)
     }
   }
 
+  // 방명록 작성
   const handleGuestbookSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    if (!newGuestbookEntry.trim()) return
-    
+    if (!newGuestbookEntry.trim() || !username) return
     try {
-      // 임시 방명록 추가 (실제로는 API 호출)
-      const newEntry: GuestbookEntry = {
-        id: Date.now(),
-        content: newGuestbookEntry,
-        author: currentUser?.username || '익명',
-        authorId: currentUser?.id || 0,
-        createdAt: new Date().toISOString(),
-        isAuthor: true
-      }
-      
-      setGuestbook(prev => [newEntry, ...prev])
+      await addGuestbookEntry(username, newGuestbookEntry)
+      // 새로고침
+      const guestbookRes = await getGuestbook(username)
+      setGuestbook(guestbookRes)
       setNewGuestbookEntry('')
       setIsWritingGuestbook(false)
     } catch (error) {
-      console.error('방명록 작성 실패:', error)
       alert('방명록 작성에 실패했습니다.')
     }
   }
-
+  // 방명록 삭제
   const handleGuestbookDelete = async (entryId: number) => {
     if (!confirm('방명록을 삭제하시겠습니까?')) return
-    
     try {
-      // 임시 방명록 삭제 (실제로는 API 호출)
+      await deleteGuestbookEntry(entryId)
       setGuestbook(prev => prev.filter(entry => entry.id !== entryId))
     } catch (error) {
-      console.error('방명록 삭제 실패:', error)
       alert('방명록 삭제에 실패했습니다.')
     }
   }
-
+  // 일촌(친구) 토글
   const handleFriendToggle = async () => {
-    if (!currentUser) {
+    if (!currentUser || !username) {
       alert('로그인이 필요합니다.')
       return
     }
-    
     try {
-      // 임시 일촌 토글 (실제로는 API 호출)
+      await toggleFriend(username, !isFriend)
       setIsFriend(!isFriend)
-      alert(isFriend ? '일촌을 끊었습니다.' : '일촌을 맺었습니다.')
+      alert(!isFriend ? '일촌을 맺었습니다.' : '일촌을 끊었습니다.')
     } catch (error) {
-      console.error('일촌 관리 실패:', error)
       alert('일촌 관리에 실패했습니다.')
     }
   }

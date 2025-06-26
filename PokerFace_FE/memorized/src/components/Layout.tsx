@@ -63,32 +63,31 @@ function MainLayout({ children, hideRight = false }: { children: React.ReactNode
       <SideBar onSearch={() => setSearchOpen(true)} onNotifications={() => setNotiOpen(true)} />
       <main className="main-center">{children}</main>
       {!hideRight && (
-        <aside className="main-right card-glass">
-          <div className="right-profile-card card-glass">
-            <div className="right-profile-avatar">
+        <aside className="main-right card-glass modern-right-bar">
+          <div className="right-profile-card-modern card-glass">
+            <div className="right-profile-avatar-modern">
               <img 
-                src={`https://i.pravatar.cc/40?img=1`}
+                src={user?.profileImageUrl || `https://i.pravatar.cc/80?img=1`}
                 alt={user?.username || '사용자'}
               />
-              <button className="profile-img-edit-btn btn-main" style={{marginTop: 6, fontSize: 12, background: 'none', border: 'none', color: '#888', cursor: 'pointer'}}>
-                이미지 변경
-              </button>
             </div>
-            <div className="right-profile-info">
-              <div className="right-profile-nick badge-pastel">{user?.username || '사용자'}</div>
-              <div className="right-profile-id">{user?.email || ''}</div>
+            <div className="right-profile-info-modern">
+              <div className="right-profile-nick-modern">{user?.username || '사용자'}</div>
+              <div className="right-profile-id-modern">{user?.email || ''}</div>
             </div>
+            <button className="profile-img-edit-btn-modern" title="이미지 변경">
+              <FiUser size={18} />
+            </button>
           </div>
-          <div className="right-suggest-title">회원님을 위한 추천</div>
-          <div className="right-suggest-list">
-            <div className="right-suggest-item card-glass">
-              <span className="badge-pastel">jamjamjam_1122</span>
-              <button className="btn-main">팔로우</button>
-            </div>
-            <div className="right-suggest-item card-glass">
-              <span className="badge-pastel">wacko.y</span>
-              <button className="btn-main">팔로우</button>
-            </div>
+          <div className="right-suggest-title-modern">추천 유저</div>
+          <div className="right-suggest-list-modern">
+            {[{name:'jamjamjam_1122', img:'https://i.pravatar.cc/40?img=2'}, {name:'wacko.y', img:'https://i.pravatar.cc/40?img=3'}].map(u => (
+              <div className="right-suggest-item-modern card-glass" key={u.name}>
+                <img className="suggest-avatar" src={u.img} alt={u.name} />
+                <span className="suggest-nick">{u.name}</span>
+                <button className="suggest-follow-btn btn-main">팔로우</button>
+              </div>
+            ))}
           </div>
         </aside>
       )}
@@ -111,7 +110,7 @@ export default function Layout() {
   // 인증 상태 체크
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      navigate('/main')
+      navigate('/login', { state: { message: '세션이 만료되었습니다. 다시 로그인 해주세요.' } })
     }
   }, [isAuthenticated, isLoading, navigate])
   
