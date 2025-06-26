@@ -18,6 +18,9 @@ public class AuthUserController {
 
     @GetMapping("/me")
     public ResponseEntity<?> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
         return ResponseEntity.ok(userService.getMyInfo(userDetails.getUsername()));
     }
 
